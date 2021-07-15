@@ -76,7 +76,7 @@ $(document).ready(function() {
             // Cookieから前回入力時の値を取得
             // 目標ランク
             setInitVal(TARGET_RANK);
-            changeTargetRank();
+            $(ID_TARGET_EXP).text(addFigure(calcRankToExp(ID_TARGET_RANK)));
 
             // 目標年プルダウン設定
             var today = new Date();
@@ -86,6 +86,8 @@ $(document).ready(function() {
             // 目標月プルダウン設定
             createNumPulldownOption(TARGET_DAY, MIN_DAY, MAX_DAY);
 
+            // 現在のランク
+            setInitVal(NOW_RANK);
             // 累計経験値
             setInitVal(TOTAL_EXP, true);
             // 目標年
@@ -95,13 +97,9 @@ $(document).ready(function() {
             // 目標日
             changeDay();
             setInitVal(TARGET_DAY, false, today.getDate());
-            // 現在のランク算出
-            calcNowRank();
+
             // 算出
             calcAll();
-
-            //初期フォーカス
-            $(ID_TARGET_RANK).focus();
 
             $(ID_OVER_RANK_MSG).text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
         });
@@ -125,17 +123,17 @@ function changeTargetRank() {
  * 現在のランク変更イベント
  */
 function changeNowRank() {
-    setCookieVal(NOW_RANK);
     // 算出
     $(ID_TOTAL_EXP).val(addFigure(calcRankToExp(ID_NOW_RANK)));
     calcAll();
+    setCookieVal(NOW_RANK);
+    setCookieVal(TOTAL_EXP, true);
 }
 
 /**
  * 累計経験値変更イベント
  */
 function changeTotalExp() {
-    setCookieVal(TOTAL_EXP, true);
     var totalExp = delFigure($(ID_TOTAL_EXP).val());
     // カンマ設定
     $(ID_TOTAL_EXP).val(addFigure(totalExp));
@@ -143,6 +141,8 @@ function changeTotalExp() {
     calcNowRank();
     // 算出
     calcAll();
+    setCookieVal(NOW_RANK);
+    setCookieVal(TOTAL_EXP, true);
 }
 
 /**
@@ -502,10 +502,14 @@ function calcLapCount() {
         $('#lap_one_day' + i).text(addFigure(lapOneDay));
         // 目標まで(h)
         var lapGoalH = Math.ceil(lapGoal * 10 / 50) / 10;
-        $('#lap_goal_h' + i).text(addFigure(lapGoalH));
+        lapGoalH = lapGoalH.toFixed(1);
+        lapGoalH = addFigure(lapGoalH);
+        $('#lap_goal_h' + i).text(lapGoalH);
         // 1日分(h)
         var lapOneDayH = Math.ceil(lapOneDay * 10 / 50) / 10;
-        $('#lap_one_day_h' + i).text(addFigure(lapOneDayH));
+        lapOneDayH = lapOneDayH.toFixed(1);
+        lapOneDayH = addFigure(lapOneDayH);
+        $('#lap_one_day_h' + i).text(lapOneDayH);
     }
 }
 
