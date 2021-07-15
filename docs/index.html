@@ -1,0 +1,90 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" href="./style/rank_tool.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+        <script src="./js/rank_tool.js"></script>
+        <title>モンスト　ランク計算ツール</title>
+    </head>
+    <body>
+        <h1 id="head_title">モンスト　ランク計算ツール</h1>
+        <label id="over_rank_msg"></label>
+        <table border="1" id="main_info">
+            <tr>
+                <td id="target_rank_label">目標ランク</td>
+                <td>
+                    <input type="tel" id="target_rank" maxlength="4" tabindex="1" class="input_column" onchange="changeTargetRank();">
+                </td>
+                <td id="now_rank_label">現在のランク</td>
+                <td>
+                    <input type="tel" id="now_rank" maxlength="4" tabindex="1" class="input_column" onchange="changeNowRank();">
+                </td>
+            </tr>
+            <tr>
+                <td id="target_exp_label">目標経験値</td>
+                <td id="target_exp" class="disp_column"></td>
+                <td id="target_year_label">目標年</td>
+                <td>
+                    <select id="target_year" class="select_column target_ymd" tabindex="3" onchange="changeTargetYear();">
+                </td>
+            </tr>
+            <tr>
+                <td id="total_exp_label">累計経験値</td>
+                <td>
+                    <input type="tel" id="total_exp" maxlength="11" tabindex="2" class="input_column" onchange="changeTotalExp();" onfocus="focusTotalExp();" onblur="blurTotalExp();">
+                </td>
+                <td id="target_month_label">目標月</td>
+                <td>
+                    <select id="target_month" class="select_column target_ymd" tabindex="4" onchange="changeTargetMonth();">
+                </td>
+            </tr>
+            <tr>
+                <td id="need_exp_label">必要経験値</td>
+                <td id="need_exp" class="disp_column"></td>
+                <td id="target_day_label">目標日</td>
+                <td>
+                    <select id="target_day" class="select_column target_ymd" tabindex="5" onchange="changeTargetDay();">
+                </td>
+            </tr>
+            <tr>
+                <td id="days_exp_label">1日目標経験値</td>
+                <td id="days_exp" class="disp_column"></td>
+                <td id="days_left_label">残り日数</td>
+                <td id="days_left" class="disp_column"></td>
+            </tr>
+        </table>
+        <p id="how_to">
+            <label>※目標ランク・目標年月日を設定してください。<br></label>
+            <label>　現在のランクまたは累計経験値を入力してください。(自動計算)<br></label>
+            <label>　(累計経験値は「その他」→「ストライカー」から確認)</label>
+        </p>
+        <div style="font-weight:bold;">ノマクエ周回数</div>
+        <div>
+            <label>難易度</label>
+            <select id="difficulty" onchange="changeDifficulty();"></select>
+            <label id="base_exp_label"></label>
+        </div>
+        <table border="1" id="lap_count_table">
+            <thead style="text-align: center;">
+                <tr>
+                    <th>周回方法</th>
+                    <th>1周経験値</th>
+                    <th>1日分</th>
+                    <th>目標まで</th>
+                    <th>1日分(h)</th>
+                    <th>目標まで(h)</th>
+                </tr>
+            </thead>
+            <tbody id="lap_count_tbody"></tbody>
+        </table>
+        <p id="lap_tips">
+            <label>「1日分」・「目標まで」は周回数、<br></label>
+            <label>「(h)」は目標まで何時間周回するかを表しています。(1時間50周と仮定)</label>
+        </p>
+        <div id="contact">
+            <label style="color: red;">質問・相談は作成者twitterまでご連絡ください。</label><br>
+            <a href="https://twitter.com/intent/tweet?screen_name=ishikoro1994&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-show-count="false">Tweet to @ishikoro1994</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+        </div>
+    </body>
+</html>
