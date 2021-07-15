@@ -403,7 +403,7 @@ function calcNowRank() {
             i--;
         }
     }
-    $(ID_NOW_RANK).val(addFigure(nowRank));
+    $(ID_NOW_RANK).val(nowRank);
 }
 
 /**
