@@ -426,18 +426,21 @@ function calcRankToExp(rankId) {
 
     if (!targetRank) {
         targetExp = '';
-        $(ID_OVER_RANK_MSG).hide();
     } else if (targetRank <= maxRank) {
         // 目標ランクが最大ランク以内の場合、目標経験値を配列から取得
         targetExp = rankTable[targetRank - 1][1];
-        // 注釈非表示
-        $(ID_OVER_RANK_MSG).hide();
     } else if (targetRank > maxRank) {
         // 目標ランクが最大ランクを超えている場合
         // ((目標ランク - 最終ランク) * 最終ランク経験値差分) + 最終ランク経験値
         targetExp = ((targetRank - maxRank) * Number(lastExpDiff)) + Number(lastExp);
-        // 注釈非表示
+    }
+
+    if ($(ID_TARGET_RANK).val() > maxRank || $(ID_NOW_RANK).val() > maxRank) {
+        // 注釈表示
         $(ID_OVER_RANK_MSG).show();
+    } else {
+        // 注釈非表示
+        $(ID_OVER_RANK_MSG).hide();
     }
     return targetExp;
 }
