@@ -67,6 +67,11 @@
   margin-top: initial;
 }
 
+/*シェアラベル*/
+#tweet_label {
+  float: left;
+}
+
 /*ウィンドウ幅が767px以上の場合に適用*/
 @media screen and (min-width: 1025px) {
   #over_rank_msg {
@@ -115,6 +120,10 @@
   }
 
   #lap_tips {
+    font-size: 14px;
+  }
+
+  #tweet_label {
     font-size: 14px;
   }
 
@@ -174,6 +183,10 @@
     font-size: 14px;
   }
 
+  #tweet_label {
+    font-size: 14px;
+  }
+
   #contact {
     font-size: 14px;
   }
@@ -230,6 +243,10 @@
   }
 
   #lap_tips {
+    font-size: 12px;
+  }
+
+  #tweet_label {
     font-size: 12px;
   }
 
