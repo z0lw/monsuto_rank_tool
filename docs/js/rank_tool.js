@@ -450,13 +450,6 @@ function calcRankToExp(rankId) {
         targetExp = ((targetRank - maxRank) * Number(lastExpDiff)) + Number(lastExp);
     }
 
-    if ($(ID_TARGET_RANK).val() > maxRank || $(ID_NOW_RANK).val() > maxRank) {
-        // 注釈表示
-        $(ID_OVER_RANK_MSG).show();
-    } else {
-        // 注釈非表示
-        $(ID_OVER_RANK_MSG).hide();
-    }
     return targetExp;
 }
 
