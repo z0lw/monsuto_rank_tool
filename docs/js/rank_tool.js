@@ -5,7 +5,7 @@ var maxRank = 0;
 var lastExp = 0;
 var lastExpDiff = 0;
 var lapTypeCount = 0;
-var explist = [10000, 9900, 9800];
+var explist = [15000, 10000, 9900, 9800];
 var baseExp = 0;
 var lapInfoList = [];
 const WAKUWAKU_MANABI = 1.6;
@@ -47,9 +47,10 @@ $(document).ready(function() {
     var d = new $.Deferred();
 
     // 難易度プルダウン設定
-    $(ID_DIFFICULTY).append($('<option>').html("上").val(0));
-    $(ID_DIFFICULTY).append($('<option>').html("中").val(1));
-    $(ID_DIFFICULTY).append($('<option>').html("下").val(2));
+    $(ID_DIFFICULTY).append($('<option>').html("新").val(0));
+    $(ID_DIFFICULTY).append($('<option>').html("上").val(1));
+    $(ID_DIFFICULTY).append($('<option>').html("中").val(2));
+    $(ID_DIFFICULTY).append($('<option>').html("下").val(3));
     setInitVal(DIFFICULTY);
     var exp = explist[Number($(ID_DIFFICULTY).val())];
     baseExp = Number(WAKUWAKU_MANABI * exp);
