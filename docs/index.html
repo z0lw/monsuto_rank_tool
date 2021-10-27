@@ -1,11 +1,17 @@
 <html>
     <head>
-        <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <link rel="stylesheet" href="./style/rank_tool.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
         <script src="./js/rank_tool.js"></script>
         <title>モンスト　ランク計算ツール</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta name="description" content="目標ランクまでのノーマルクエスト周回数を計算するツールです。">
+        <meta name="twitter:card" content="Summary Card">
+        <meta name="twitter:site" content="@ishikoro1994">
+        <meta name="twitter:title" content="モンスト　ランク計算ツール">
+        <meta name="twitter:description" content="目標ランクまでのノーマルクエスト周回数を計算するツールです。">
+        <meta name="twitter:image" content="./data/thumbnail.JPG">
     </head>
     <body>
         <h1 id="head_title">モンスト　ランク計算ツール</h1>
@@ -14,7 +20,7 @@
             <tr>
                 <td id="target_rank_label">目標ランク</td>
                 <td>
-                    <input type="tel" id="target_rank" maxlength="4" tabindex="1" class="input_column" onchange="changeTargetRank();">
+                    <input type="tel" id="target_rank" maxlength="5" tabindex="1" class="input_column" onchange="changeTargetRank();">
                 </td>
                 <td id="now_rank_label">現在のランク</td>
                 <td>
@@ -23,7 +29,7 @@
             </tr>
             <tr>
                 <td id="target_exp_label">目標経験値</td>
-                <td id="target_exp" class="disp_column"></td>
+                <td id="target_exp" class="disp_columnL"></td>
                 <td id="target_year_label">目標年</td>
                 <td>
                     <select id="target_year" class="select_column target_ymd" tabindex="3" onchange="changeTargetYear();">
@@ -41,7 +47,7 @@
             </tr>
             <tr>
                 <td id="need_exp_label">必要経験値</td>
-                <td id="need_exp" class="disp_column"></td>
+                <td id="need_exp" class="disp_columnL"></td>
                 <td id="target_day_label">目標日</td>
                 <td>
                     <select id="target_day" class="select_column target_ymd" tabindex="5" onchange="changeTargetDay();">
@@ -49,9 +55,9 @@
             </tr>
             <tr>
                 <td id="days_exp_label">1日目標経験値</td>
-                <td id="days_exp" class="disp_column"></td>
+                <td id="days_exp" class="disp_columnL"></td>
                 <td id="days_left_label">残り日数</td>
-                <td id="days_left" class="disp_column"></td>
+                <td id="days_left" class="disp_columnR"></td>
             </tr>
         </table>
         <p id="how_to">
@@ -61,7 +67,7 @@
         </p>
         <p>
             <div id="share">
-                <label id="tweet_label">目標と現在の状況を</label>
+                <label id="tweet_label">目標を</label>
                 <div id="tweet_area"></div>
             </div>
         </p>
@@ -90,7 +96,9 @@
         </p>
         <div id="contact">
             <label style="color: red;">質問・相談は作成者twitterまでご連絡ください。</label><br>
-            <a href="https://twitter.com/intent/tweet?screen_name=ishikoro1994&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-show-count="false">Tweet to @ishikoro1994</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+            <a title="@ishikoro1994をフォロー" href="https://twitter.com/ishikoro1994?ref_src=twsrc%5Etfw" data-lang="ja" class="twitter-follow-button" data-show-count="true">
+                <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </a>
         </div>
     </body>
 </html>

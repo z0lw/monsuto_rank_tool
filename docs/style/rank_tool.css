@@ -22,7 +22,8 @@
 }
 
 /*表示項目*/
-.disp_column {
+.disp_columnL,
+.disp_columnR {
   text-align: right;
 }
 
@@ -104,7 +105,7 @@
 
   /*累計経験値テキストボックス*/
   #total_exp {
-    width: 120px;
+    width: 135px;
   }
 
   .select_column {
@@ -129,6 +130,10 @@
 
   #contact {
     font-size: 14px;
+  }
+
+  .disp_columnL {
+    width: 135;
   }
 }
 
@@ -164,7 +169,7 @@
 
   /*累計経験値テキストボックス*/
   #total_exp {
-    width: 120px;
+    width: 135px;
   }
 
   .select_column {
@@ -189,6 +194,10 @@
 
   #contact {
     font-size: 14px;
+  }
+
+  .disp_columnL {
+    width: 135;
   }
 }
 
@@ -224,7 +233,7 @@
 
   /*累計経験値テキストボックス*/
   #total_exp {
-    width: 100px;
+    width: 105px;
   }
 
   #lap_count_table {
@@ -252,5 +261,9 @@
 
   #contact {
     font-size: 12px;
+  }
+
+  .disp_columnL {
+    width: 105;
   }
 }
