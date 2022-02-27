@@ -404,11 +404,11 @@ function calcNowRank() {
         var i = 0;
         while (1) {
             i++;
-            if (totalExp <= (Number(lastExpDiff) * i) + lastExp) {
+            if (totalExp < (Number(lastExpDiff) * i) + lastExp) {
                 break;
             }
         }
-        nowRank = maxRank + i;
+        nowRank = maxRank + i - 1;
     } else {
         var i = maxRank - 1; // 添え字のため-1
         while (i > 0) {
