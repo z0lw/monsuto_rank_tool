@@ -74,7 +74,6 @@ $(document).ready(function() {
             // 目標ランク初期選択
             // $(ID_TARGET_RANK).val(1);
 
-            // Cookieから前回入力時の値を取得
             // 目標ランク
             setInitVal(TARGET_RANK);
             $(ID_TARGET_EXP).text(addFigure(calcRankToExp(ID_TARGET_RANK)));
@@ -117,7 +116,6 @@ function async(f) {
  * 目標ランク変更イベント
  */
 function changeTargetRank() {
-    setCookieVal(TARGET_RANK);
     // 算出
     $(ID_TARGET_EXP).text(addFigure(calcRankToExp(ID_TARGET_RANK)));
     calcAll();
@@ -132,8 +130,6 @@ function changeNowRank() {
     // 算出
     $(ID_TOTAL_EXP).val(addFigure(calcRankToExp(ID_NOW_RANK)));
     calcAll();
-    setCookieVal(NOW_RANK);
-    setCookieVal(TOTAL_EXP, true);
     // ツイートボタン生成
     setTweetButton();
 }
@@ -149,8 +145,6 @@ function changeTotalExp() {
     calcNowRank();
     // 算出
     calcAll();
-    setCookieVal(NOW_RANK);
-    setCookieVal(TOTAL_EXP, true);
     // ツイートボタン生成
     setTweetButton();
 }
@@ -176,7 +170,6 @@ function blurTotalExp() {
  */
  function changeTargetYear() {
     convertNum(TARGET_YEAR);
-    setCookieVal(TARGET_YEAR);
     changeDay();
     calcAll();
     // ツイートボタン生成
@@ -188,7 +181,6 @@ function blurTotalExp() {
  */
 function changeTargetMonth() {
     convertNum(TARGET_MONTH);
-    setCookieVal(TARGET_MONTH);
     changeDay();
     calcAll();
     // ツイートボタン生成
@@ -200,7 +192,6 @@ function changeTargetMonth() {
  */
 function changeTargetDay() {
     convertNum(TARGET_DAY);
-    setCookieVal(TARGET_DAY);
     calcAll();
     // ツイートボタン生成
     setTweetButton();
@@ -211,7 +202,6 @@ function changeTargetDay() {
  */
 function changeDifficulty() {
     var exp = explist[$(ID_DIFFICULTY).val()];
-    setCookieVal(DIFFICULTY);
     $('#base_exp_label').text('の経験値は' + addFigure(exp) + ' x 1.6(学び特L)');
     baseExp = Number(WAKUWAKU_MANABI * exp);
     makeLapCount();
@@ -543,19 +533,6 @@ function changeDay() {
 }
 
 /**
- * クッキーに値を設定
- */
-function setCookieVal(id, isDelFigure = false) {
-    // 画面入力値取得
-    var value = $('#' + id).val();
-    if (isDelFigure) {
-        // カンマを外す
-        value = delFigure(value);
-    }
-    Cookies.set(id, value);
-}
-
-/**
  * 数値プルダウン選択肢作成
  */
 function createNumPulldownOption(id, from, to) {
@@ -572,16 +549,8 @@ function createNumPulldownOption(id, from, to) {
  * 初期値設定
  */
 function setInitVal(id, isAddFigure = false, undefinedVal = '') {
-    var val = Cookies.get(id);
-    if (val) {
-        if (isAddFigure) {
-            val = addFigure(val);
-        }
-        $('#' + id).val(val);
-    } else {
-        if (undefinedVal) {
-            $('#' + id).val(undefinedVal);
-        }
+    if (undefinedVal) {
+        $('#' + id).val(undefinedVal);
     }
 }
 
