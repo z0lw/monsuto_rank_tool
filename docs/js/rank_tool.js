@@ -9,6 +9,7 @@ var explist = [15000, 10000, 9900, 9800];
 var baseExp = 0;
 var lapInfoList = [];
 const WAKUWAKU_MANABI = 1.6;
+const WAKUWAKU_MANABI_EL = 1.65;
 const MIN_MONTH = 1;
 const MAX_MONTH = 12;
 const MIN_DAY = 1;
@@ -54,7 +55,7 @@ $(document).ready(function() {
     setInitVal(DIFFICULTY);
     var exp = explist[Number($(ID_DIFFICULTY).val())];
     baseExp = Number(WAKUWAKU_MANABI * exp);
-    $('#base_exp_label').text("の経験値は" + addFigure(exp) + " x 1.6(学び特L)");
+    $('#base_exp_label').text('の経験値は' + addFigure(exp) + ' x 1.6(学び特L)');
 
     async(function() {
         loadRankTableCsv();
@@ -201,9 +202,15 @@ function changeTargetDay() {
  * 難易度変更イベント
  */
 function changeDifficulty() {
-    var exp = explist[$(ID_DIFFICULTY).val()];
-    $('#base_exp_label').text('の経験値は' + addFigure(exp) + ' x 1.6(学び特L)');
-    baseExp = Number(WAKUWAKU_MANABI * exp);
+    let exp = explist[$(ID_DIFFICULTY).val()];
+    let wakuwaku = WAKUWAKU_MANABI;
+    let wakuwakuLabel = ' x 1.6(学び特L)';
+    if ($('#el_check').prop("checked")){
+        wakuwaku = WAKUWAKU_MANABI_EL;
+        wakuwakuLabel = ' x 1.65(学び特EL)';
+    }
+    $('#base_exp_label').text('の経験値は' + addFigure(exp) + wakuwakuLabel);
+    baseExp = Number(wakuwaku * exp);
     makeLapCount();
     calcAll();
 }
@@ -298,7 +305,7 @@ function makeLapCount() {
     for(var i = 0; i < lapInfoList.length; i++){
         rapInfoArray.push(lapInfoList[i].split(","));
         var expMag = rapInfoArray[i][1];
-        expMag = parseFloat(expMag) * baseExp;
+        expMag = Math.ceil(parseFloat(expMag) * baseExp);
         var expMagStr = addFigure(expMag);
         var needExp = $(ID_NEED_EXP).text();
 
@@ -594,4 +601,11 @@ function setTweetButton(){
         lang: 'ja'
       }
     );
+}
+
+/**
+ * 学びELチェック
+ */
+function changeElCheck(){
+    changeDifficulty();
 }
