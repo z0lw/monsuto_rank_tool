@@ -1,5 +1,6 @@
 @charset "utf-8";
 
+#update_msg,
 #over_rank_msg {
   color: red;
 }
@@ -75,6 +76,7 @@
 
 /*ウィンドウ幅が767px以上の場合に適用*/
 @media screen and (min-width: 1025px) {
+  #update_msg,
   #over_rank_msg {
     font-size: 14px;
   }
@@ -139,6 +141,7 @@
 
 @media screen and (max-width: 1024px) {
   /*ウィンドウ幅が最大767pxまでの場合に適用 タブレット*/
+  #update_msg,
   #over_rank_msg {
     font-size: 14px;
   }
@@ -208,6 +211,7 @@
     font-size: 18px;
   }
 
+  #update_msg,
   #over_rank_msg {
     font-size: 12px;
   }
