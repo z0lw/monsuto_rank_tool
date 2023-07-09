@@ -510,12 +510,12 @@ function calcLapCount() {
         var lapOneDay = Math.ceil(daysExp / lapExp);
         $('#lap_one_day' + i).text(addFigure(lapOneDay));
         // 目標まで(h)
-        var lapGoalH = Math.ceil(lapGoal * 10 / 60) / 10;
+        var lapGoalH = Math.ceil(lapGoal * 10 / 50) / 10;
         lapGoalH = lapGoalH.toFixed(1);
         lapGoalH = addFigure(lapGoalH);
         $('#lap_goal_h' + i).text(lapGoalH);
         // 1日分(h)
-        var lapOneDayH = Math.ceil(lapOneDay * 10 / 60) / 10;
+        var lapOneDayH = Math.ceil(lapOneDay * 10 / 50) / 10;
         lapOneDayH = lapOneDayH.toFixed(1);
         lapOneDayH = addFigure(lapOneDayH);
         $('#lap_one_day_h' + i).text(lapOneDayH);
