@@ -5,7 +5,7 @@ var maxRank = 0;
 var lastExp = 0;
 var lastExpDiff = 0;
 var lapTypeCount = 0;
-var explist = [15000, 10000, 9900, 9800];
+var explist = [20000, 15000, 10000];
 var baseExp = 0;
 var lapInfoList = [];
 const WAKUWAKU_MANABI = 1.6;
@@ -48,14 +48,13 @@ $(document).ready(function() {
     var d = new $.Deferred();
 
     // 難易度プルダウン設定
-    $(ID_DIFFICULTY).append($('<option>').html("新").val(0));
-    $(ID_DIFFICULTY).append($('<option>').html("上").val(1));
-    $(ID_DIFFICULTY).append($('<option>').html("中").val(2));
-    $(ID_DIFFICULTY).append($('<option>').html("下").val(3));
+    $(ID_DIFFICULTY).append($('<option>').html("魔境").val(0));
+    $(ID_DIFFICULTY).append($('<option>').html("険所").val(1));
+    $(ID_DIFFICULTY).append($('<option>').html("魔殿").val(2));
     setInitVal(DIFFICULTY);
     var exp = explist[Number($(ID_DIFFICULTY).val())];
-    baseExp = Number(WAKUWAKU_MANABI * exp);
-    $('#base_exp_label').text('の経験値は' + addFigure(exp) + ' x 1.6(学び特L)');
+    baseExp = Number(WAKUWAKU_MANABI_EL * exp);
+    $('#base_exp_label').text('の経験値は' + addFigure(exp) + ' x 1.65(学び特EL)で計算');
 
     async(function() {
         loadRankTableCsv();
