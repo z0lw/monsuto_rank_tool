@@ -130,6 +130,31 @@
             <label>　現在のランクまたは累計経験値を入力してください。(自動計算)<br></label>
             <label>　(累計経験値は「その他」→「ストライカー」から確認)</label>
         </p>
+        <details id="detail_setting_panel">
+             <summary id="detail_setting_panel_sum">詳細設定</summary>
+             <div id="detail_setting_panel_contents">
+                 <div>
+                     <label>1時間あたりの周回数</label>
+                     <input type="tel" id="hour_lap" maxlength="2" class="input_column" onchange="changeHourlap();" min="10" max="99">
+                 </div>
+                 <div>
+                     <label>運極ボーナス倍率</label>
+                     <select id="unkyoku_bonus" onchange="changeUnkyokubonus();"></select>
+                 </div>
+                 <div>
+                     <label>周回クエスト</label>
+                     <select id="difficulty" onchange="changeDifficulty();"></select>
+                 </div>
+                 <div>
+                     <input id="el_check" type="checkbox" onchange="changeElCheck();" checked/>
+                     <label for="el_check">学びELを有効化</label>
+                 </div>
+                 <div>
+                     <input id="multi_check" type="checkbox" onchange="changeMultiCheck();"/>
+                     <label for="multi_check">マルチ(モンパス:ホスト)</label>
+                 </div>
+             </div>
+        </details>
         <p>
             <div id="share">
                 <label id="tweet_label">目標を</label>
@@ -138,11 +163,7 @@
         </p>
         <div style="font-weight:bold;">ノマクエ周回数</div>
         <div>
-            <select id="difficulty" onchange="changeDifficulty();"></select>
             <label id="base_exp_label"></label>
-            </br>
-            <input id="el_check" type="checkbox" onchange="changeElCheck();" checked/>
-            <label for="el_check">学びELを有効化</label>
         </div>
         <table border="1" id="lap_count_table">
             <thead style="text-align: center;">
@@ -159,7 +180,7 @@
         </table>
         <p id="lap_tips">
             <label>「1日分」・「目標まで」は周回数、<br></label>
-            <label>「(h)」は目標まで何時間周回するかを表しています。(1時間50周と仮定)</label>
+            <label>「(h)」は目標まで何時間周回するかを表しています。</label>
         </p>
         <div id="contact">
             <label style="color: red;">質問・相談は作成者twitterまでご連絡ください。</label><br>

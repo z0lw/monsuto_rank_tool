@@ -5,9 +5,18 @@ var maxRank = 0;
 var lastExp = 0;
 var lastExpDiff = 0;
 var lapTypeCount = 0;
-var explist = [20000, 15000, 10000];
+var explist = [40000, 20000, 15000, 10000];
 var baseExp = 0;
 var lapInfoList = [];
+var unkyokubonusList =
+    [
+        { 'label': 'なし', 'mag': 1.0},
+        { 'label': 'Lv1', 'mag': 1.01},
+        { 'label': 'Lv2', 'mag': 1.02},
+        { 'label': 'Lv3', 'mag': 1.03},
+        { 'label': 'Lv4', 'mag': 1.04},
+        { 'label': 'Lv5', 'mag': 1.05}
+    ]
 const WAKUWAKU_MANABI = 1.6;
 const WAKUWAKU_MANABI_EL = 1.65;
 const MIN_MONTH = 1;
@@ -48,13 +57,34 @@ $(document).ready(function() {
     var d = new $.Deferred();
 
     // 難易度プルダウン設定
-    $(ID_DIFFICULTY).append($('<option>').html("魔境").val(0));
-    $(ID_DIFFICULTY).append($('<option>').html("険所").val(1));
-    $(ID_DIFFICULTY).append($('<option>').html("魔殿").val(2));
+    unkyokubonusList.forEach((e) => {
+        $('#unkyoku_bonus').append($('<option>').html(e.label).val(e.mag));
+    });
+    setInitVal('unkyoku_bonus');
+    $('#unkyoku_bonus').val(unkyokubonusList[unkyokubonusList.length -1].mag);
+
+    // 1時間当たりの周回数
+    $('#hour_lap').val(60);
+
+    // 難易度プルダウン設定
+    $(ID_DIFFICULTY).append($('<option>').html("危地").val(0));
+    $(ID_DIFFICULTY).append($('<option>').html("魔境").val(1));
+    $(ID_DIFFICULTY).append($('<option>').html("険所").val(2));
+    $(ID_DIFFICULTY).append($('<option>').html("魔殿").val(3));
     setInitVal(DIFFICULTY);
+
+    let bonus = $('#unkyoku_bonus').val();
+    // マルチのチェック状態によって経験値倍率変更
+    let multiExpMag = 1.0;
+    let multiTxt = '';
+    if ($('#multi_check')[0].checked) {
+        multiExpMag = 1.05;
+        multiTxt = ' x ' + multiExpMag + ('(マルチ)');
+    }
+
     var exp = explist[Number($(ID_DIFFICULTY).val())];
-    baseExp = Number(WAKUWAKU_MANABI_EL * exp);
-    $('#base_exp_label').text('の経験値は' + addFigure(exp) + ' x 1.65(学び特EL)で計算');
+    baseExp = Number(WAKUWAKU_MANABI_EL * multiExpMag * bonus * exp);
+    $('#base_exp_label').text('1周経験値:' + addFigure(exp) + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)' + ' x 1.65(学び特EL)' + multiTxt);
 
     async(function() {
         loadRankTableCsv();
@@ -201,6 +231,38 @@ function changeTargetDay() {
  * 難易度変更イベント
  */
 function changeDifficulty() {
+    changeDetail();
+}
+
+/**
+ * 運極ボーナス変更イベント
+ */
+function changeUnkyokubonus() {
+    changeDetail();
+}
+
+/**
+ * 学びELチェック
+ */
+function changeElCheck(){
+    changeDetail();
+}
+
+/**
+ * マルチチェック
+ */
+function changeMultiCheck() {
+    changeDetail();
+}
+
+/**
+ * 1時間あたりの周回数変更イベント
+ */
+function changeHourlap() {
+    changeDetail();
+}
+
+function changeDetail() {
     let exp = explist[$(ID_DIFFICULTY).val()];
     let wakuwaku = WAKUWAKU_MANABI;
     let wakuwakuLabel = ' x 1.6(学び特L)';
@@ -208,8 +270,17 @@ function changeDifficulty() {
         wakuwaku = WAKUWAKU_MANABI_EL;
         wakuwakuLabel = ' x 1.65(学び特EL)';
     }
-    $('#base_exp_label').text('の経験値は' + addFigure(exp) + wakuwakuLabel);
-    baseExp = Number(wakuwaku * exp);
+    let bonus = $('#unkyoku_bonus').val();
+    // マルチのチェック状態によって経験値倍率変更
+    let multiExpMag = 1.0;
+    let multiTxt = '';
+    if ($('#multi_check')[0].checked) {
+        multiExpMag = 1.05;
+        multiTxt = ' x ' + multiExpMag + ('(マルチ)');
+    }
+
+    $('#base_exp_label').text('1周経験値:' + addFigure(exp) + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)' + wakuwakuLabel + multiTxt);
+    baseExp = Number(wakuwaku * multiExpMag * bonus * exp);
     makeLapCount();
     calcAll();
 }
@@ -493,6 +564,9 @@ function calcLapCount() {
         return;
     }
 
+    var hourLap = $('#hour_lap').val();
+    hourLap = Number(hourLap);
+
     // 必要経験値カンマ外し
     needExp = Number(delFigure(needExp));
     // 1日目標経験値カンマ外し
@@ -509,12 +583,12 @@ function calcLapCount() {
         var lapOneDay = Math.ceil(daysExp / lapExp);
         $('#lap_one_day' + i).text(addFigure(lapOneDay));
         // 目標まで(h)
-        var lapGoalH = Math.ceil(lapGoal * 10 / 50) / 10;
+        var lapGoalH = Math.ceil(lapGoal * 10 / hourLap) / 10;
         lapGoalH = lapGoalH.toFixed(1);
         lapGoalH = addFigure(lapGoalH);
         $('#lap_goal_h' + i).text(lapGoalH);
         // 1日分(h)
-        var lapOneDayH = Math.ceil(lapOneDay * 10 / 50) / 10;
+        var lapOneDayH = Math.ceil(lapOneDay * 10 / hourLap) / 10;
         lapOneDayH = lapOneDayH.toFixed(1);
         lapOneDayH = addFigure(lapOneDayH);
         $('#lap_one_day_h' + i).text(lapOneDayH);
@@ -600,11 +674,4 @@ function setTweetButton(){
         lang: 'ja'
       }
     );
-}
-
-/**
- * 学びELチェック
- */
-function changeElCheck(){
-    changeDifficulty();
 }
