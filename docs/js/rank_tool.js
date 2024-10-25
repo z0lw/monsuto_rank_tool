@@ -64,7 +64,7 @@ $(document).ready(function() {
     $('#unkyoku_bonus').val(unkyokubonusList[unkyokubonusList.length -1].mag);
 
     // 1時間当たりの周回数
-    $('#hour_lap').val(48);
+    $('#hour_lap').val(40);
 
     // 難易度プルダウン設定
     $(ID_DIFFICULTY).append($('<option>').html("危地").val(0));
