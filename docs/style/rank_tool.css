@@ -103,6 +103,7 @@
 .ze-le-row {
   display: flex; /* ラベルとセレクトボックスを横並びに配置 */
   align-items: center; /* 垂直方向を中央揃え */
+  margin-bottom: 5px; /* ラベルとセレクトボックスの下に余白を追加 */
 }
 
 .ze-le-label {
@@ -116,8 +117,7 @@
 .ze-le-warning {
   font-size: 12px; /* 注意書きの文字サイズを小さく */
   color: red; /* 注意書きを赤色で表示 */
-  display: none; /* 初期状態では非表示 */
-  margin: unset; /* マージンをリセット */
+  margin-top: 5px; /* セレクトボックスと注意書きの間隔を調整 */
 }
 
 /*ウィンドウ幅が767px以上の場合に適用*/

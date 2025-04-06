@@ -229,17 +229,17 @@ function changeExpAbilityCheck() {
  * ゼーレプルダウン変更イベント
  */
 function changeZele() {
-    const zeLeSelect = $('#ze-le');
-    const zeLeWarning = $('#ze-le-warning');
-    const lastOptionValue = parseFloat($('#ze-le option:last').val());
-    const selectedValue = parseFloat(zeLeSelect.val());
+    // const zeLeSelect = $('#ze-le');
+    // const zeLeWarning = $('#ze-le-warning');
+    // const lastOptionValue = parseFloat($('#ze-le option:last').val());
+    // const selectedValue = parseFloat(zeLeSelect.val());
 
-    // 最終行が選択されている場合は注意書きを非表示、それ以外は表示
-    if (selectedValue === lastOptionValue) {
-        zeLeWarning.hide();
-    } else {
-        zeLeWarning.show();
-    }
+    // // 最終行が選択されている場合は注意書きを非表示、それ以外は表示
+    // if (selectedValue === lastOptionValue) {
+    //     zeLeWarning.hide();
+    // } else {
+    //     zeLeWarning.show();
+    // }
 
     // 必要に応じて他の処理を呼び出す
     changeDetail();
@@ -283,7 +283,7 @@ function changeDetail() {
 
         // 表記上の処理
         if (expAbilityMag === lastOptionValue) { // 最終行が選ばれている場合
-            expAbilityTxt = ' x ' + expAbilityMag.toFixed(3) + EXP_ABILITY_BASE_TXT; // 小数点第3位まで表示
+            expAbilityTxt = ' x ' + expAbilityMag + EXP_ABILITY_BASE_TXT; // 小数点第3位まで表示
         } else {
             expAbilityTxt = ' x 約1.' + (Math.round((expAbilityMag - 1) * 1000)).toString().padStart(3, '0') + EXP_ABILITY_BASE_TXT;
         }
