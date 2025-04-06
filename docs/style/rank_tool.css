@@ -95,6 +95,30 @@
   border: 1px solid #333;
 }
 
+/* ゼーレのラックのラベルとセレクトボックスを横並びに配置 */
+.ze-le-container {
+  margin-left: 20px; /* exp_ability_checkのチェックボックス分右にずらす */
+}
+
+.ze-le-row {
+  display: flex; /* ラベルとセレクトボックスを横並びに配置 */
+  align-items: center; /* 垂直方向を中央揃え */
+}
+
+.ze-le-label {
+  margin-right: 10px; /* ラベルとセレクトボックスの間隔を調整 */
+}
+
+.ze-le-select {
+  width: 60px; /* hour_lapと同じ幅に設定 */
+}
+
+.ze-le-warning {
+  font-size: 12px; /* 注意書きの文字サイズを小さく */
+  color: red; /* 注意書きを赤色で表示 */
+  display: none; /* 初期状態では非表示 */
+  margin: unset; /* マージンをリセット */
+}
 
 /*ウィンドウ幅が767px以上の場合に適用*/
 @media screen and (min-width: 1025px) {

@@ -23,32 +23,7 @@ const MIN_MONTH = 1;
 const MAX_MONTH = 12;
 const MIN_DAY = 1;
 const MAX_DAY = 31;
-const TARGET_YEAR = 'target_year';
-const ID_TARGET_YEAR = '#' + TARGET_YEAR;
-const TARGET_MONTH = 'target_month';
-const ID_TARGET_MONTH = '#' + TARGET_MONTH;
-const TARGET_DAY = 'target_day';
-const ID_TARGET_DAY = '#' + TARGET_DAY;
-const TARGET_RANK = 'target_rank';
-const ID_TARGET_RANK = '#' + TARGET_RANK;
-const TOTAL_EXP = 'total_exp';
-const ID_TOTAL_EXP = '#' + TOTAL_EXP;
-const DAYS_LEFT = 'days_left';
-const ID_DAYS_LEFT = '#' + DAYS_LEFT;
-const LAP_COUNT_TBODY = 'lap_count_tbody';
-const ID_LAP_COUNT_TBODY = '#' + LAP_COUNT_TBODY;
-const NEED_EXP = 'need_exp';
-const ID_NEED_EXP = '#' + NEED_EXP;
-const DAYS_EXP = 'days_exp';
-const ID_DAYS_EXP = '#' + DAYS_EXP;
-const TARGET_EXP = 'target_exp';
-const ID_TARGET_EXP = '#' + TARGET_EXP;
-const OVER_RANK_MSG = 'over_rank_msg';
-const ID_OVER_RANK_MSG = '#' + OVER_RANK_MSG;
-const NOW_RANK = 'now_rank';
-const ID_NOW_RANK = '#' + NOW_RANK;
-const DIFFICULTY = 'difficulty';
-const ID_DIFFICULTY = '#' + DIFFICULTY;
+const EXP_ABILITY_BASE_TXT = '(経験値アビ)';
 
 /**
  * ページ読み込み時
@@ -61,30 +36,17 @@ $(document).ready(function() {
         $('#unkyoku_bonus').append($('<option>').html(e.label).val(e.mag));
     });
     setInitVal('unkyoku_bonus');
-    $('#unkyoku_bonus').val(unkyokubonusList[unkyokubonusList.length -1].mag);
+    $('#unkyoku_bonus').val(unkyokubonusList[unkyokubonusList.length - 1].mag);
 
     // 1時間当たりの周回数
     $('#hour_lap').val(60);
 
     // 難易度プルダウン設定
-    $(ID_DIFFICULTY).append($('<option>').html("危地").val(0));
-    $(ID_DIFFICULTY).append($('<option>').html("魔境").val(1));
-    $(ID_DIFFICULTY).append($('<option>').html("険所").val(2));
-    $(ID_DIFFICULTY).append($('<option>').html("魔殿").val(3));
-    setInitVal(DIFFICULTY);
-
-    let bonus = $('#unkyoku_bonus').val();
-    // マルチのチェック状態によって経験値倍率変更
-    let multiExpMag = 1.0;
-    let multiTxt = '';
-    if ($('#multi_check')[0].checked) {
-        multiExpMag = 1.05;
-        multiTxt = ' x ' + multiExpMag + ('(マルチ)');
-    }
-
-    var exp = explist[Number($(ID_DIFFICULTY).val())];
-    baseExp = Number(WAKUWAKU_MANABI_EL * multiExpMag * bonus * exp);
-    $('#base_exp_label').text('1周経験値:' + addFigure(exp) + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)' + ' x 1.65(学び特EL)' + multiTxt);
+    $('#difficulty').append($('<option>').html("危地").val(0));
+    $('#difficulty').append($('<option>').html("魔境").val(1));
+    $('#difficulty').append($('<option>').html("険所").val(2));
+    $('#difficulty').append($('<option>').html("魔殿").val(3));
+    setInitVal('difficulty');
 
     async(function() {
         loadRankTableCsv();
@@ -101,39 +63,34 @@ $(document).ready(function() {
             return d2.promise();
         })
         .then(function() {
+            var d3 = new $.Deferred();
+            async(function() {
+                loadZeLeCsv(); // ze-le.csvを読み込む
+                d3.resolve();
+            });
+            return d3.promise();
+        })
+        .then(function() {
             // 目標ランク初期選択
-            // $(ID_TARGET_RANK).val(1);
+            setInitVal('target_rank');
+            $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
 
-            // 目標ランク
-            setInitVal(TARGET_RANK);
-            $(ID_TARGET_EXP).text(addFigure(calcRankToExp(ID_TARGET_RANK)));
-
-            // 目標年プルダウン設定
             var today = new Date();
-            createNumPulldownOption(TARGET_YEAR, today.getFullYear(), today.getFullYear() + 10);
-            // 目標月プルダウン設定
-            createNumPulldownOption(TARGET_MONTH, MIN_MONTH, MAX_MONTH);
-            // 目標月プルダウン設定
-            createNumPulldownOption(TARGET_DAY, MIN_DAY, MAX_DAY);
+            createNumPulldownOption('target_year', today.getFullYear(), today.getFullYear() + 10);
+            createNumPulldownOption('target_month', MIN_MONTH, MAX_MONTH);
+            createNumPulldownOption('target_day', MIN_DAY, MAX_DAY);
 
-            // 現在のランク
-            setInitVal(NOW_RANK);
-            // 累計経験値
-            setInitVal(TOTAL_EXP, true);
-            // 目標年
-            setInitVal(TARGET_YEAR, false, today.getFullYear());
-            // 目標月
-            setInitVal(TARGET_MONTH, false, today.getMonth() + 1);
-            // 目標日
+            setInitVal('now_rank');
+            setInitVal('total_exp', true);
+            setInitVal('target_year', false, today.getFullYear());
+            setInitVal('target_month', false, today.getMonth() + 1);
             changeDay();
-            setInitVal(TARGET_DAY, false, today.getDate());
+            setInitVal('target_day', false, today.getDate());
 
-            // 算出
             calcAll();
 
-            $(ID_OVER_RANK_MSG).text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
+            $('#over_rank_msg').text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
 
-            // ツイートボタン生成
             setTweetButton();
         });
 });
@@ -147,7 +104,7 @@ function async(f) {
  */
 function changeTargetRank() {
     // 算出
-    $(ID_TARGET_EXP).text(addFigure(calcRankToExp(ID_TARGET_RANK)));
+    $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
     calcAll();
     // ツイートボタン生成
     setTweetButton();
@@ -158,7 +115,7 @@ function changeTargetRank() {
  */
 function changeNowRank() {
     // 算出
-    $(ID_TOTAL_EXP).val(addFigure(calcRankToExp(ID_NOW_RANK)));
+    $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
     calcAll();
     // ツイートボタン生成
     setTweetButton();
@@ -168,9 +125,9 @@ function changeNowRank() {
  * 累計経験値変更イベント
  */
 function changeTotalExp() {
-    var totalExp = delFigure($(ID_TOTAL_EXP).val());
+    var totalExp = delFigure($('#total_exp').val());
     // カンマ設定
-    $(ID_TOTAL_EXP).val(addFigure(totalExp));
+    $('#total_exp').val(addFigure(totalExp));
     // 現在のランク算出
     calcNowRank();
     // 算出
@@ -184,7 +141,7 @@ function changeTotalExp() {
  */
 function focusTotalExp() {
     // カンマ外し
-    $(ID_TOTAL_EXP).val(delFigure($(ID_TOTAL_EXP).val()));
+    $('#total_exp').val(delFigure($('#total_exp').val()));
 }
 
 /**
@@ -192,14 +149,14 @@ function focusTotalExp() {
  */
 function blurTotalExp() {
     // カンマ設定
-    $(ID_TOTAL_EXP).val(addFigure($(ID_TOTAL_EXP).val()));
+    $('#total_exp').val(addFigure($('#total_exp').val()));
 }
 
 /**
  * 目標年変更イベント
  */
  function changeTargetYear() {
-    convertNum(TARGET_YEAR);
+    convertNum('target_year');
     changeDay();
     calcAll();
     // ツイートボタン生成
@@ -210,7 +167,7 @@ function blurTotalExp() {
  * 目標月変更イベント
  */
 function changeTargetMonth() {
-    convertNum(TARGET_MONTH);
+    convertNum('target_month');
     changeDay();
     calcAll();
     // ツイートボタン生成
@@ -221,7 +178,7 @@ function changeTargetMonth() {
  * 目標日変更イベント
  */
 function changeTargetDay() {
-    convertNum(TARGET_DAY);
+    convertNum('target_day');
     calcAll();
     // ツイートボタン生成
     setTweetButton();
@@ -256,6 +213,39 @@ function changeMultiCheck() {
 }
 
 /**
+ * 経験値アップアビリティチェック
+ */
+function changeExpAbilityCheck() {
+    // チェック状態に応じてゼーレプルダウンの有効無効を切り替え
+    if ($('#exp_ability_check').prop('checked')) {
+        $('#ze-le').prop('disabled', false); // 有効化
+    } else {
+        $('#ze-le').prop('disabled', true); // 無効化
+    }
+    changeDetail();
+}
+
+/**
+ * ゼーレプルダウン変更イベント
+ */
+function changeZele() {
+    const zeLeSelect = $('#ze-le');
+    const zeLeWarning = $('#ze-le-warning');
+    const lastOptionValue = parseFloat($('#ze-le option:last').val());
+    const selectedValue = parseFloat(zeLeSelect.val());
+
+    // 最終行が選択されている場合は注意書きを非表示、それ以外は表示
+    if (selectedValue === lastOptionValue) {
+        zeLeWarning.hide();
+    } else {
+        zeLeWarning.show();
+    }
+
+    // 必要に応じて他の処理を呼び出す
+    changeDetail();
+}
+
+/**
  * 1時間あたりの周回数変更イベント
  */
 function changeHourlap() {
@@ -263,24 +253,54 @@ function changeHourlap() {
 }
 
 function changeDetail() {
-    let exp = explist[$(ID_DIFFICULTY).val()];
+    let exp = explist[$('#difficulty').val()];
     let wakuwaku = WAKUWAKU_MANABI;
     let wakuwakuLabel = ' x 1.6(学び特L)';
-    if ($('#el_check').prop("checked")){
+    if ($('#el_check').prop("checked")) {
         wakuwaku = WAKUWAKU_MANABI_EL;
         wakuwakuLabel = ' x 1.65(学び特EL)';
     }
+
     let bonus = $('#unkyoku_bonus').val();
     // マルチのチェック状態によって経験値倍率変更
     let multiExpMag = 1.0;
     let multiTxt = '';
     if ($('#multi_check')[0].checked) {
         multiExpMag = 1.05;
-        multiTxt = ' x ' + multiExpMag + ('(マルチ)');
+        multiTxt = ' x ' + multiExpMag + '(マルチ)';
     }
 
-    $('#base_exp_label').text('1周経験値:' + addFigure(exp) + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)' + wakuwakuLabel + multiTxt);
-    baseExp = Number(wakuwaku * multiExpMag * bonus * exp);
+    // 経験値アップアビリティ
+    let expAbility = parseFloat($('#ze-le').val()); // ze-leの値を取得
+    let expAbilityTxt = '';
+    let expAbilityMag = 1.0;
+
+    if ($('#exp_ability_check')[0].checked) {
+        expAbilityMag = expAbility;
+
+        // 最終行の値を取得
+        let lastOptionValue = parseFloat($('#ze-le option:last').val());
+
+        // 表記上の処理
+        if (expAbilityMag === lastOptionValue) { // 最終行が選ばれている場合
+            expAbilityTxt = ' x ' + expAbilityMag.toFixed(3) + EXP_ABILITY_BASE_TXT; // 小数点第3位まで表示
+        } else {
+            expAbilityTxt = ' x 約1.' + (Math.round((expAbilityMag - 1) * 1000)).toString().padStart(3, '0') + EXP_ABILITY_BASE_TXT;
+        }
+    }
+
+    // 基本経験値の計算
+    baseExp = Number(wakuwaku * multiExpMag * bonus * exp * expAbilityMag);
+
+    // 表示の更新
+    $('#base_exp_label').text(
+        '1周経験値:' + addFigure(exp)
+        + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)'
+        + wakuwakuLabel
+        + multiTxt
+        + expAbilityTxt
+    );
+
     makeLapCount();
     calcAll();
 }
@@ -302,9 +322,9 @@ function convertNum(id) {
  * 残り日数算出
  */
 function calcDaysLeft() {
-    var y = $(ID_TARGET_YEAR).val();
-    var m = $(ID_TARGET_MONTH).val();
-    var d = $(ID_TARGET_DAY).val();
+    var y = $('#target_year').val();
+    var m = $('#target_month').val();
+    var d = $('#target_day').val();
     if (!y || !m || !d) {
         return;
     }
@@ -317,7 +337,7 @@ function calcDaysLeft() {
     } else {
         daysLeft++;
     }
-    $(ID_DAYS_LEFT).text(daysLeft);
+    $('#days_left').text(daysLeft);
 }
 
 
@@ -365,10 +385,64 @@ function makeLapInfoArrayList(data) {
 }
 
 /**
+ * ze-le.csv読み込み処理
+ */
+function loadZeLeCsv() {
+    $.get('./data/ze-le.csv', function(data) {
+        var rows = data.split("\n");
+        var lastRow = null;
+
+        // CSVの各行を処理
+        rows.forEach(function(row, index) {
+            var cols = row.split(",");
+            if (cols.length >= 2) {
+                // 各行を<select>に追加
+                $('#ze-le').append($('<option>').html(cols[0]).val(cols[1]));
+                lastRow = cols; // 最終行を保存
+            }
+        });
+
+        // 最終行を初期値として設定
+        if (lastRow) {
+            $('#ze-le').val(lastRow[1]); // 最終行の値を選択
+        }
+
+        // マルチのチェック状態によって経験値倍率変更
+        let bonus = $('#unkyoku_bonus').val();
+        let multiExpMag = 1.0;
+        let multiTxt = '';
+        if ($('#multi_check')[0].checked) {
+            multiExpMag = 1.05;
+            multiTxt = ' x ' + multiExpMag + '(マルチ)';
+        }
+
+        // 経験値アップアビリティ
+        let expAbility = $('#ze-le').val();
+        let expAbilityTxt = '';
+        let expAbilityMag = 1.0;
+        if ($('#exp_ability_check')[0].checked) {
+            expAbilityMag = expAbility;
+            expAbilityTxt = ' x ' + expAbilityMag + EXP_ABILITY_BASE_TXT;
+        }
+
+        // 基本経験値の計算と表示
+        let exp = explist[Number($('#difficulty').val())];
+        baseExp = Number(WAKUWAKU_MANABI_EL * multiExpMag * bonus * exp * expAbilityMag);
+        $('#base_exp_label').text(
+            '1周経験値:' + addFigure(exp)
+            + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)'
+            + ' x 1.65(学び特EL)'
+            + multiTxt
+            + expAbilityTxt
+        );
+    }, 'text');
+}
+
+/**
  * 周回数再表示
  */
 function makeLapCount() {
-    $(ID_LAP_COUNT_TBODY).empty();
+    $('#lap_count_tbody').empty();
     rapInfoArray = [];
 
     // １行を配列に変換
@@ -377,7 +451,7 @@ function makeLapCount() {
         var expMag = rapInfoArray[i][1];
         expMag = Math.ceil(parseFloat(expMag) * baseExp);
         var expMagStr = addFigure(expMag);
-        var needExp = $(ID_NEED_EXP).text();
+        var needExp = $('#need_exp').text();
 
         if (!needExp) {
             expMag = '';
@@ -401,7 +475,7 @@ function makeLapCount() {
         // 目標まで(h)
         rowStr += '<td id="lap_goal_h' + i + '"></td>';
         rowStr += '</tr>';
-        $(ID_LAP_COUNT_TBODY).append(rowStr);
+        $('#lap_count_tbody').append(rowStr);
 
         lapTypeCount++;
     }
@@ -424,7 +498,7 @@ function makeLapCount() {
     // 数値でなければそのまま返却
     if ( !/^[+|-]?(\d*)(\.\d+)?$/.test(numVal) ){
         return numVal;
-　　}
+    }
     // 整数部分と小数部分に分割
     var numData = numVal.toString().split('.');
     // 整数部分を3桁カンマ区切りへ
@@ -463,7 +537,7 @@ function toHalfWidth(strVal){
  * 現在のランク計算
  */
 function calcNowRank() {
-    var totalExp = Number(delFigure($(ID_TOTAL_EXP).val()));
+    var totalExp = Number(delFigure($('#total_exp').val()));
     var nowRank = '';
     lastExp = Number(lastExp);
     if (totalExp > lastExp) {
@@ -486,7 +560,7 @@ function calcNowRank() {
             i--;
         }
     }
-    $(ID_NOW_RANK).val(nowRank);
+    $('#now_rank').val(nowRank);
 }
 
 /**
@@ -525,13 +599,13 @@ function calcRankToExp(rankId) {
  * 必要経験値・1日目標経験値算出
  */
 function calcExp() {
-    var targetExp = delFigure($(ID_TARGET_EXP).text());
-    var totalExp = delFigure($(ID_TOTAL_EXP).val());
-    var daysLeft = $(ID_DAYS_LEFT).text();
+    var targetExp = delFigure($('#target_exp').text());
+    var totalExp = delFigure($('#total_exp').val());
+    var daysLeft = $('#days_left').text();
 
     if (!targetExp || !totalExp || !daysLeft) {
-        $(ID_NEED_EXP).text('');
-        $(ID_DAYS_EXP).text('');
+        $('#need_exp').text('');
+        $('#days_exp').text('');
         return;
     }
 
@@ -539,16 +613,16 @@ function calcExp() {
     var daysExp = 0;
 
     if (needExp <= 0) {
-        $(ID_NEED_EXP).text('');
-        $(ID_DAYS_EXP).text('');
+        $('#need_exp').text('');
+        $('#days_exp').text('');
         return;
     }
 
     if (daysLeft > 0) {
         daysExp = Math.ceil(needExp / daysLeft);
     }
-    $(ID_NEED_EXP).text(addFigure(needExp));
-    $(ID_DAYS_EXP).text(addFigure(daysExp));
+    $('#need_exp').text(addFigure(needExp));
+    $('#days_exp').text(addFigure(daysExp));
 }
 
 /**
@@ -556,9 +630,9 @@ function calcExp() {
  */
 function calcLapCount() {
     // 必要経験値
-    var needExp = $(ID_NEED_EXP).text();
+    var needExp = $('#need_exp').text();
     // 1日目標経験値
-    var daysExp = $(ID_DAYS_EXP).text();
+    var daysExp = $('#days_exp').text();
     if (!needExp || !daysExp) {
         loadLapInfoCsv();
         return;
@@ -591,25 +665,24 @@ function calcLapCount() {
         var lapOneDayH = Math.ceil(lapOneDay * 10 / hourLap) / 10;
         lapOneDayH = lapOneDayH.toFixed(1);
         lapOneDayH = addFigure(lapOneDayH);
-        $('#lap_one_day_h' + i).text(lapOneDayH);
     }
 }
 
 // 目標月日プルダウン選択項目変更
 function changeDay() {
-    var targetYear = $(ID_TARGET_YEAR).val();
-    var targetMonth = $(ID_TARGET_MONTH).val();
-    var targetDay = $(ID_TARGET_DAY).val();
+    var targetYear = $('#target_year').val();
+    var targetMonth = $('#target_month').val();
+    var targetDay = $('#target_day').val();
     var lastDate = new Date(targetYear, targetMonth, 0);
 
-    $(ID_TARGET_DAY + ' option').remove();
+    $('#target_day' + ' option').remove();
     for (var i = 1; i <= lastDate.getDate(); i++) {
-        $(ID_TARGET_DAY).append($('<option>').html(i).val(i));
+        $('#target_day').append($('<option>').html(i).val(i));
     }
     if (targetDay > lastDate.getDate()) {
         targetDay = lastDate.getDate();
     }
-    $(ID_TARGET_DAY).val(targetDay);
+    $('#target_day').val(targetDay);
 }
 
 /**
@@ -640,10 +713,10 @@ function setInitVal(id, isAddFigure = false, undefinedVal = '') {
 function setTweetButton(){
     $('#tweet_area').empty(); //既存のボタン消す
     $('#share').hide();
-    var targetRank = $(ID_TARGET_RANK).val();
-    var nowRank = $(ID_NOW_RANK).val();
+    var targetRank = $('#target_rank').val();
+    var nowRank = $('#now_rank').val();
 
-    if (!targetRank || !nowRank || !$(ID_NEED_EXP).text()) {
+    if (!targetRank || !nowRank || !$('#need_exp').text()) {
         return;
     }
 
@@ -658,9 +731,9 @@ function setTweetButton(){
         text += '(推定)';
     }
     text += '\n';
-    text += '【目標日】' + $(ID_TARGET_YEAR).val() + '年' + $(ID_TARGET_MONTH).val() + '月' + $(ID_TARGET_DAY).val() + '日' + '\n';
-    text += '目標までに必要な経験値は ' + $(ID_NEED_EXP).text() + '\n';
-    text += '毎日 ' + $(ID_DAYS_EXP).text() + ' 獲得すれば達成可能！';
+    text += '【目標日】' + $('#target_year').val() + '年' + $('#target_month').val() + '月' + $('#target_day').val() + '日' + '\n';
+    text += '目標までに必要な経験値は ' + $('#need_exp').text() + '\n';
+    text += '毎日 ' + $('#days_exp').text() + ' 獲得すれば達成可能！';
 
     // ボタン生成
     $('#share').show();
