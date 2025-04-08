@@ -153,7 +153,18 @@
                      <input id="multi_check" type="checkbox" onchange="changeMultiCheck();"/>
                      <label for="multi_check">マルチ(モンパス:ホスト)</label>
                  </div>
-             </div>
+                 <div>
+                    <input id="exp_ability_check" type="checkbox" onchange="changeExpAbilityCheck();" checked/>
+                    <label for="exp_ability_check">経験値アップアビリティ</label>
+                    <div class="ze-le-container">
+                        <div class="ze-le-row">
+                            <label for="ze-le" class="ze-le-label">ゼーレのラック</label>
+                            <select id="ze-le" class="ze-le-select" onchange="changeZele();"></select>
+                        </div>
+                        <p id="ze-le-warning" class="ze-le-warning">※誤差が発生する可能性があります。</p>
+                    </div>
+                </div>
+            </div>
         </details>
         <p>
             <div id="share">
