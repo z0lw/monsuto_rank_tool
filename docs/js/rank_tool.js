@@ -58,9 +58,9 @@ $(document).ready(function() {
 
     // --- 非同期処理 (CSV読み込み) ---
     const d1_rankTable = $.get('./data/rank_table.csv', 'text').done(makeArrayList);
-    const d2_lapInfo = $.get('./data/lap_info.csv', 'text').done(makeLapInfoArrayList); // makeLapInfoArrayListの中でmakeLapCountが呼ばれる
+    const d2_lapInfo = loadLapInfoCsv(); // Deferredを返すように修正済み
     const d3_zeLe = $.Deferred();
-    loadZeLeCsvModified(d3_zeLe); // この中で ze-le プルダウン設定, changeDetail(), d3_zeLe.resolve()
+    loadZeLeCsvModified(d3_zeLe); // この中で ze-le プルダウン設定, d3_zeLe.resolve()
 
 
     // --- 全ての非同期処理完了後 ---
@@ -124,7 +124,8 @@ $(document).ready(function() {
             $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
         }
         
-        calcAll(); // 全ての入力値が確定した後に最終計算
+        changeDetail(); // 全ての入力値が確定した後に changeDetail() を呼び出す
+                        // changeDetail は内部で makeLapCount と calcAll を実行する
 
         $('#over_rank_msg').text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
         setTweetButton();
@@ -169,7 +170,7 @@ function changeTotalExp() {
 }
 
 /**
- * 累計経験値フォーカスインイベント
+ * 累計経験値フォーカスイベント
  */
 function focusTotalExp() {
     // カンマ外し
@@ -403,7 +404,8 @@ function makeArrayList(data) {
 * CSV読み込み処理
 */
 function loadLapInfoCsv() {
-    $.get('./data/lap_info.csv', makeLapInfoArrayList, 'text');
+    // d2_lapInfo (Deferred object) を返すように変更
+    return $.get('./data/lap_info.csv', 'text').done(makeLapInfoArrayList);
 }
 
 /**
@@ -412,7 +414,7 @@ function loadLapInfoCsv() {
 function makeLapInfoArrayList(data) {
     // 文字列→行単位に変換
     lapInfoList = data.split("\n");
-    makeLapCount();
+    // makeLapCount(); // ここでの呼び出しを削除
     return true;
 }
 
@@ -436,7 +438,7 @@ function loadZeLeCsvModified(deferred) {
         if (lastRow) {
             $('#ze-le').val(lastRow[1]); // 最終行の値を選択
         }
-        changeDetail(); // ze-leの値が設定された後、関連計算(baseExpなど)を更新
+        // changeDetail(); // ここでの呼び出しを削除
         deferred.resolve(); // Deferredを解決
     }, 'text');
 }
