@@ -31,6 +31,15 @@ const EXP_ABILITY_BASE_TXT = '(経験値アビ)';
 $(document).ready(function() {
     var d = new $.Deferred();
 
+    // URLパラメータを取得
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetRankParam = urlParams.get('target_rank');
+    const nowRankParam = urlParams.get('now_rank');
+    const totalExpParam = urlParams.get('total_exp');
+    const targetYearParam = urlParams.get('target_year');
+    const targetMonthParam = urlParams.get('target_month');
+    const targetDayParam = urlParams.get('target_day');
+
     // 難易度プルダウン設定
     unkyokubonusList.forEach((e) => {
         $('#unkyoku_bonus').append($('<option>').html(e.label).val(e.mag));
@@ -73,6 +82,9 @@ $(document).ready(function() {
         .then(function() {
             // 目標ランク初期選択
             setInitVal('target_rank');
+            if (targetRankParam) {
+                $('#target_rank').val(targetRankParam);
+            }
             $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
 
             var today = new Date();
@@ -82,10 +94,34 @@ $(document).ready(function() {
 
             setInitVal('now_rank');
             setInitVal('total_exp', true);
+
+            if (totalExpParam) {
+                // total_expがURLパラメータにあれば、それを優先
+                $('#total_exp').val(addFigure(totalExpParam));
+                calcNowRank(); // total_expからnow_rankを計算
+            } else if (nowRankParam) {
+                // total_expがなく、now_rankがURLパラメータにあれば、now_rankを使いtotal_expを計算
+                $('#now_rank').val(nowRankParam);
+                $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
+            }
+            // 上記の条件に当てはまらない場合（totalExpParamもnowRankParamも無い場合）は、
+            // 事前に実行されたsetInitValによる初期値が使用される。
+            // もしnow_rankもtotal_expも設定されていない場合は、calcRankToExpやcalcNowRankが適切に処理できるように
+            // どちらか一方、または両方にデフォルト値を設定するsetInitValの呼び出しがここより前にあることを確認する。
+
             setInitVal('target_year', false, today.getFullYear());
+            if (targetYearParam) {
+                $('#target_year').val(targetYearParam);
+            }
             setInitVal('target_month', false, today.getMonth() + 1);
-            changeDay();
+            if (targetMonthParam) {
+                $('#target_month').val(targetMonthParam);
+            }
+            changeDay(); // 年月が変わった可能性があるので、日のプルダウンを更新
             setInitVal('target_day', false, today.getDate());
+            if (targetDayParam) {
+                $('#target_day').val(targetDayParam);
+            }
 
             calcAll();
 
