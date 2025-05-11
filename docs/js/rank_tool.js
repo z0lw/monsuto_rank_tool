@@ -665,6 +665,8 @@ function calcLapCount() {
         var lapOneDayH = Math.ceil(lapOneDay * 10 / hourLap) / 10;
         lapOneDayH = lapOneDayH.toFixed(1);
         lapOneDayH = addFigure(lapOneDayH);
+        $('#lap_one_day_h' + i).text(lapOneDayH);
+        // 1日分(h)の表示
     }
 }
 
