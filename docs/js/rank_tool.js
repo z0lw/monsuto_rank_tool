@@ -29,8 +29,6 @@ const EXP_ABILITY_BASE_TXT = '(経験値アビ)';
  * ページ読み込み時
  */
 $(document).ready(function() {
-    var d = new $.Deferred();
-
     // URLパラメータを取得
     const urlParams = new URLSearchParams(window.location.search);
     const targetRankParam = urlParams.get('target_rank');
@@ -40,100 +38,98 @@ $(document).ready(function() {
     const targetMonthParam = urlParams.get('target_month');
     const targetDayParam = urlParams.get('target_day');
 
-    // 難易度プルダウン設定
+    // --- 同期的な初期設定 ---
+    // 運極ボーナスプルダウン
     unkyokubonusList.forEach((e) => {
         $('#unkyoku_bonus').append($('<option>').html(e.label).val(e.mag));
     });
-    setInitVal('unkyoku_bonus');
-    $('#unkyoku_bonus').val(unkyokubonusList[unkyokubonusList.length - 1].mag);
+    $('#unkyoku_bonus').val(unkyokubonusList[unkyokubonusList.length - 1].mag); // デフォルトを最大に
 
     // 1時間当たりの周回数
-    $('#hour_lap').val(40);
+    $('#hour_lap').val(40); // デフォルト値
 
     // 難易度プルダウン設定
     $('#difficulty').append($('<option>').html("危地").val(0));
     $('#difficulty').append($('<option>').html("魔境").val(1));
     $('#difficulty').append($('<option>').html("険所").val(2));
     $('#difficulty').append($('<option>').html("魔殿").val(3));
-    setInitVal('difficulty');
+    $('#difficulty').val(0); // デフォルト値を設定 (例: 危地)
 
-    async(function() {
-        loadRankTableCsv();
-        d.resolve();
-    });
 
-    d.promise()
-        .then(function() {
-            var d2 = new $.Deferred();
-            async(function() {
-                loadLapInfoCsv();
-                d2.resolve();
-            });
-            return d2.promise();
-        })
-        .then(function() {
-            var d3 = new $.Deferred();
-            async(function() {
-                loadZeLeCsv(); // ze-le.csvを読み込む
-                d3.resolve();
-            });
-            return d3.promise();
-        })
-        .then(function() {
-            // 目標ランク初期選択
-            setInitVal('target_rank');
-            if (targetRankParam) {
-                $('#target_rank').val(targetRankParam);
-            }
-            $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
+    // --- 非同期処理 (CSV読み込み) ---
+    const d1_rankTable = $.get('./data/rank_table.csv', 'text').done(makeArrayList);
+    const d2_lapInfo = $.get('./data/lap_info.csv', 'text').done(makeLapInfoArrayList); // makeLapInfoArrayListの中でmakeLapCountが呼ばれる
+    const d3_zeLe = $.Deferred();
+    loadZeLeCsvModified(d3_zeLe); // この中で ze-le プルダウン設定, changeDetail(), d3_zeLe.resolve()
 
-            var today = new Date();
-            createNumPulldownOption('target_year', today.getFullYear(), today.getFullYear() + 10);
-            createNumPulldownOption('target_month', MIN_MONTH, MAX_MONTH);
-            createNumPulldownOption('target_day', MIN_DAY, MAX_DAY);
 
-            setInitVal('now_rank');
-            setInitVal('total_exp', true);
+    // --- 全ての非同期処理完了後 ---
+    $.when(d1_rankTable, d2_lapInfo, d3_zeLe).done(function() {
+        // 目標ランクのURLパラメータ処理とデフォルト値設定
+        if (targetRankParam) {
+            $('#target_rank').val(targetRankParam);
+        } else {
+            $('#target_rank').val(1500); // デフォルト目標ランク
+        }
+        // target_exp は target_rank の値に基づいて計算
+        $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
 
-            if (totalExpParam) {
-                // total_expがURLパラメータにあれば、それを優先
-                $('#total_exp').val(addFigure(totalExpParam));
-                calcNowRank(); // total_expからnow_rankを計算
-            } else if (nowRankParam) {
-                // total_expがなく、now_rankがURLパラメータにあれば、now_rankを使いtotal_expを計算
-                $('#now_rank').val(nowRankParam);
-                $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
-            }
-            // 上記の条件に当てはまらない場合（totalExpParamもnowRankParamも無い場合）は、
-            // 事前に実行されたsetInitValによる初期値が使用される。
-            // もしnow_rankもtotal_expも設定されていない場合は、calcRankToExpやcalcNowRankが適切に処理できるように
-            // どちらか一方、または両方にデフォルト値を設定するsetInitValの呼び出しがここより前にあることを確認する。
+        // 目標年月日のプルダウン生成とURLパラメータ/デフォルト値処理
+        var today = new Date();
+        createNumPulldownOption('target_year', today.getFullYear(), today.getFullYear() + 10);
+        createNumPulldownOption('target_month', MIN_MONTH, MAX_MONTH);
+        createNumPulldownOption('target_day', MIN_DAY, MAX_DAY); // 初期は1-31の選択肢
 
-            setInitVal('target_year', false, today.getFullYear());
-            if (targetYearParam) {
-                $('#target_year').val(targetYearParam);
-            }
-            setInitVal('target_month', false, today.getMonth() + 1);
-            if (targetMonthParam) {
-                $('#target_month').val(targetMonthParam);
-            }
-            changeDay(); // 年月が変わった可能性があるので、日のプルダウンを更新
-            setInitVal('target_day', false, today.getDate());
-            if (targetDayParam) {
+        // 年の設定
+        if (targetYearParam) {
+            $('#target_year').val(targetYearParam);
+        } else {
+            $('#target_year').val(today.getFullYear());
+        }
+        // 月の設定
+        if (targetMonthParam) {
+            $('#target_month').val(targetMonthParam);
+        } else {
+            $('#target_month').val(today.getMonth() + 1);
+        }
+        
+        changeDay(); // 年月に基づいて日の選択肢を更新し、現在の選択値を調整
+
+        // 日の設定 (changeDayの後にURLパラメータまたはデフォルト値を設定)
+        if (targetDayParam) {
+            // URLパラメータの日付が存在し、かつ現在の月の選択肢にあれば設定
+            if ($('#target_day option[value="' + targetDayParam + '"]').length > 0) {
                 $('#target_day').val(targetDayParam);
             }
+            // 選択肢にない場合(例: 2月30日など)は、changeDay()で調整された日付のまま
+        } else {
+            // URLパラメータがない場合、changeDay()で調整された今日の日付、または月の最終日が設定される
+            // changeDay内部で $('#target_day').val(targetDay); を呼んでいるので、
+            // today.getDate() が妥当ならそれが、そうでなければ調整された日が設定される。
+            // ここでは、changeDayが設定したデフォルトのままとする。
+            // もし今日の日付を確実に設定したい場合は、再度妥当性チェックの上で $('#target_day').val(today.getDate()) とする。
+            // ただし、changeDayが既に良い感じにしているので、ここでは何もしない。
+        }
 
-            calcAll();
+        // 現在ランク・累計経験値のURLパラメータ処理とデフォルト値設定
+        if (totalExpParam) {
+            $('#total_exp').val(addFigure(totalExpParam));
+            calcNowRank(); // total_expからnow_rankを計算
+        } else if (nowRankParam) {
+            $('#now_rank').val(nowRankParam);
+            $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
+        } else {
+            // URLパラメータがない場合のデフォルト値
+            $('#now_rank').val(1); // デフォルト現在ランク
+            $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
+        }
+        
+        calcAll(); // 全ての入力値が確定した後に最終計算
 
-            $('#over_rank_msg').text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
-
-            setTweetButton();
-        });
+        $('#over_rank_msg').text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
+        setTweetButton();
+    });
 });
-
-function async(f) {
-    setTimeout(f, 500);
-}
 
 /**
  * 目標ランク変更イベント
@@ -421,18 +417,16 @@ function makeLapInfoArrayList(data) {
 }
 
 /**
- * ze-le.csv読み込み処理
+ * ze-le.csv読み込み処理 (Deferred対応版)
  */
-function loadZeLeCsv() {
+function loadZeLeCsvModified(deferred) {
     $.get('./data/ze-le.csv', function(data) {
         var rows = data.split("\n");
         var lastRow = null;
-
-        // CSVの各行を処理
+        $('#ze-le option').remove(); // プルダウンの選択肢をクリア
         rows.forEach(function(row, index) {
             var cols = row.split(",");
             if (cols.length >= 2) {
-                // 各行を<select>に追加
                 $('#ze-le').append($('<option>').html(cols[0]).val(cols[1]));
                 lastRow = cols; // 最終行を保存
             }
@@ -442,35 +436,8 @@ function loadZeLeCsv() {
         if (lastRow) {
             $('#ze-le').val(lastRow[1]); // 最終行の値を選択
         }
-
-        // マルチのチェック状態によって経験値倍率変更
-        let bonus = $('#unkyoku_bonus').val();
-        let multiExpMag = 1.0;
-        let multiTxt = '';
-        if ($('#multi_check')[0].checked) {
-            multiExpMag = 1.05;
-            multiTxt = ' x ' + multiExpMag + '(マルチ)';
-        }
-
-        // 経験値アップアビリティ
-        let expAbility = $('#ze-le').val();
-        let expAbilityTxt = '';
-        let expAbilityMag = 1.0;
-        if ($('#exp_ability_check')[0].checked) {
-            expAbilityMag = expAbility;
-            expAbilityTxt = ' x ' + expAbilityMag + EXP_ABILITY_BASE_TXT;
-        }
-
-        // 基本経験値の計算と表示
-        let exp = explist[Number($('#difficulty').val())];
-        baseExp = Number(WAKUWAKU_MANABI_EL * multiExpMag * bonus * exp * expAbilityMag);
-        $('#base_exp_label').text(
-            '1周経験値:' + addFigure(exp)
-            + ' x ' + Number(bonus).toFixed(2) + '(運極ボーナス)'
-            + ' x 1.65(学び特EL)'
-            + multiTxt
-            + expAbilityTxt
-        );
+        changeDetail(); // ze-leの値が設定された後、関連計算(baseExpなど)を更新
+        deferred.resolve(); // Deferredを解決
     }, 'text');
 }
 
