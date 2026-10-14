@@ -5,7 +5,7 @@ var maxRank = 0;
 var lastExp = 0;
 var lastExpDiff = 0;
 var lapTypeCount = 0;
-var explist = [40000, 20000, 15000, 10000];
+var explist = [40000, 20000, 15000, 10000, 60000];
 var baseExp = 0;
 var lapInfoList = [];
 var unkyokubonusList =
@@ -51,11 +51,12 @@ $(document).ready(function() {
     $('#hour_lap').val(40); // デフォルト値
 
     // 難易度プルダウン設定
+    $('#difficulty').append($('<option>').html("要塞").val(4));
     $('#difficulty').append($('<option>').html("危地").val(0));
     $('#difficulty').append($('<option>').html("魔境").val(1));
     $('#difficulty').append($('<option>').html("険所").val(2));
     $('#difficulty').append($('<option>').html("魔殿").val(3));
-    $('#difficulty').val(0); // デフォルト値を設定 (例: 危地)
+    $('#difficulty').val(4); // 要塞（基本経験値60,000）を初期選択
 
 
     // --- 非同期処理 (CSV読み込み) ---
