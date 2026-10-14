@@ -26,3 +26,24 @@ python3 scripts/update_rank_table.py
 The browser uses the CSV through rank 4500 and applies the same rule beyond
 the table. If the table is extended, regenerate its estimates with the script.
 These future values are estimates, rather than confirmed game data.
+
+## スタミナ計算
+
+- 要塞は1周30、危地・魔境・険所・魔殿は1周27。
+- 総消費 = 必要周回数 × 1周消費。還元後必要量 = 必要周回数 ×（消費 − 1周の各還元）。
+- 滋養はアンテナ10%、サークル20%、＋は各20%・30%。プレミアムは＋を適用し、王者のメイン30%・サブ20%も選択できます。滋養と王者は重ねず、1つのスポット効果を使用します。
+- マルチバック期間の還元は、消費の15%を切り捨てた値 × ゲスト人数。各周の還元端数は切り捨てとして計算します。
+- 必要枠数 = ceil(還元後必要量 / 現在ランクの最大スタミナ)。最初の1枠も含む総枠数です。自然回復・自動回復・ランクアップ・会員無料回復などは差し引きません。目標日・目標ランクによって分母は増えません。
+- 最大スタミナの参照ランクは3000で打ち止め。ゲーム内の値を直接入力できます。
+- `docs/data/stamina_table.csv` は `rank,maximum_stamina`。1500以下は公開表にVer.31.0の+70を反映。1501〜2000は公開推計、2001〜2500は10ランクにつき+1、2501〜3000は同じ増分による推定（3000は1170）です。未確認の推定値は画面にも表示し、実値で修正できます。
+
+確認元：
+
+- クエスト消費: https://game8.jp/monst/73743
+- 滋養: https://game8.jp/monst/226870
+- プレミアム: https://www.monster-strike.com/news/20250807_3.html
+- 王者: https://www.monster-strike.com/news/20251106_2.html
+- マルチ還元: https://www.monster-strike.com/news/20260227_2.html
+- Ver.31.0のスタミナ+70: https://www.monster-strike.com/news/20251010_5.html
+- 1500以下: https://zcross.net/monst/monst_rankup/monst-hituyou-keikenchi
+- 1501〜2000: https://louis.cloudfree.jp/2025/03/25/monst-rank-1501-to-2000/

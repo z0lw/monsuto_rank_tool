@@ -7,6 +7,8 @@ var lastExpDiff = 0;
 var lapTypeCount = 0;
 var explist = [40000, 20000, 15000, 10000, 60000];
 var baseExp = 0;
+var staminaTable = {};
+var staminaRank = null;
 var lapInfoList = [];
 var unkyokubonusList =
     [
@@ -61,13 +63,19 @@ $(document).ready(function() {
 
     // --- 非同期処理 (CSV読み込み) ---
     const d1_rankTable = $.get('./data/rank_table.csv', 'text').done(makeArrayList);
+    const d4_stamina = $.get('./data/stamina_table.csv', 'text').done(function(data) {
+        data.trim().split(/\r?\n/).forEach(function(row) {
+            var cells = row.split(',');
+            staminaTable[Number(cells[0])] = Number(cells[1]);
+        });
+    });
     const d2_lapInfo = loadLapInfoCsv(); // Deferredを返すように修正済み
     const d3_zeLe = $.Deferred();
     loadZeLeCsvModified(d3_zeLe); // この中で ze-le プルダウン設定, d3_zeLe.resolve()
 
 
     // --- 全ての非同期処理完了後 ---
-    $.when(d1_rankTable, d2_lapInfo, d3_zeLe).done(function() {
+    $.when(d1_rankTable, d2_lapInfo, d3_zeLe, d4_stamina).done(function() {
         // 目標ランクのURLパラメータ処理とデフォルト値設定
         if (targetRankParam) {
             $('#target_rank').val(targetRankParam);
@@ -448,6 +456,7 @@ function loadZeLeCsvModified(deferred) {
 function makeLapCount() {
     $('#lap_count_tbody').empty();
     rapInfoArray = [];
+    lapTypeCount = 0;
 
     // １行を配列に変換
     for(var i = 0; i < lapInfoList.length; i++){
@@ -478,6 +487,9 @@ function makeLapCount() {
         rowStr += '<td id="lap_one_day_h' + i + '"></td>';
         // 目標まで(h)
         rowStr += '<td id="lap_goal_h' + i + '"></td>';
+        ['stamina_gross', 'stamina_net', 'stamina_frames', 'stamina_ceil'].forEach(function(id) {
+            rowStr += '<td class="stamina_number" id="' + id + i + '"></td>';
+        });
         rowStr += '</tr>';
         $('#lap_count_tbody').append(rowStr);
 
@@ -650,13 +662,50 @@ function calcExp() {
 /**
  * 周回数算出
  */
+function updateStaminaCapacity(force) {
+    var rank = Math.max(1, Math.min(3000, Math.floor(Number(delFigure($('#now_rank').val())) || 1)));
+    if (force || rank !== staminaRank) {
+        $('#stamina_capacity').val(staminaTable[rank] || '');
+        staminaRank = rank;
+    }
+    $('#stamina_capacity_note').text('ランク' + rank + 'の枠を使用。' +
+        (rank > 2500 ? '2501〜3000の自動設定値は推定です。ゲーム内の最大値に変更できます。' : 'ゲーム内の最大値に変更できます。'));
+}
+
+function changeStaminaPremium() {
+    var premium = $('#monpass_premium').prop('checked');
+    var previousSpot = $('#stamina_spot').val() || '';
+    $('#stamina_spot option[value^="king_"]').prop('disabled', !premium);
+    if (premium) $('#stamina_spot').val('king_main');
+    else if (previousSpot.indexOf('king_') === 0) $('#stamina_spot').val('none');
+    calcLapCount();
+}
+
+function staminaCostPerLap(cost, spot, premium, guests) {
+    spot = spot || 'none';
+    var rates = {none: 0, antenna: 10, circle: 20, antenna_plus: 20, circle_plus: 30, king_main: 30, king_sub: 20};
+    var rate = !premium && spot.indexOf('king_') === 0 ? 0 : (rates[spot] || 0);
+    if (premium && (spot === 'antenna' || spot === 'circle')) rate += 10;
+    var spotBack = Math.floor(cost * rate / 100);
+    var multiBack = cost > 6 ? Math.floor(cost * 15 / 100) * guests : 0;
+    return {gross: cost, spotRate: rate, spotBack: spotBack, multiBack: multiBack,
+        net: Math.max(0, cost - spotBack - multiBack)};
+}
+
 function calcLapCount() {
+    updateStaminaCapacity(false);
+    var cost = [27, 27, 27, 27, 30][Number($('#difficulty').val())];
+    var stamina = staminaCostPerLap(cost, $('#stamina_spot').val(),
+        $('#monpass_premium').prop('checked'), Number($('#stamina_campaign_guests').val()));
+    var capacity = Number($('#stamina_capacity').val());
+    $('#stamina_per_lap').text('1周：消費' + cost + ' − スポット還元' + stamina.spotBack +
+        '（' + stamina.spotRate + '%） − マルチ還元' + stamina.multiBack + ' ＝ 必要' + stamina.net);
     // 必要経験値
     var needExp = $('#need_exp').text();
     // 1日目標経験値
     var daysExp = $('#days_exp').text();
     if (!needExp || !daysExp) {
-        loadLapInfoCsv();
+        $('#lap_count_tbody td:not([id^="lap_type"]):not([id^="lap_exp"])').text('—');
         return;
     }
 
@@ -675,6 +724,11 @@ function calcLapCount() {
         // 目標まで
         var lapGoal = Math.ceil(needExp / lapExp);
         $('#lap_goal' + i).text(addFigure(lapGoal));
+        var netStamina = lapGoal * stamina.net;
+        $('#stamina_gross' + i).text(addFigure(lapGoal * stamina.gross));
+        $('#stamina_net' + i).text(addFigure(netStamina));
+        $('#stamina_frames' + i).text(capacity > 0 ? addFigure((netStamina / capacity).toFixed(2)) : '—');
+        $('#stamina_ceil' + i).text(capacity > 0 ? addFigure(Math.ceil(netStamina / capacity)) : '—');
         // 1日分
         var lapOneDay = Math.ceil(daysExp / lapExp);
         $('#lap_one_day' + i).text(addFigure(lapOneDay));

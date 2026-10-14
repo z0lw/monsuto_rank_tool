@@ -1,5 +1,6 @@
 <html>
     <head>
+        <meta charset="utf-8">
         <link rel="stylesheet" href="./style/rank_tool.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="./js/rank_tool.js"></script>
@@ -166,6 +167,36 @@
                 </div>
             </div>
         </details>
+        <details id="stamina_setting_panel" open>
+            <summary>スタミナ設定</summary>
+            <div class="stamina_settings">
+                <div><label for="stamina_capacity">現在ランクのスタミナ枠</label>
+                    <input id="stamina_capacity" type="number" min="1" step="1" class="input_column" onchange="calcLapCount();">
+                    <button type="button" onclick="updateStaminaCapacity(true); calcLapCount();">ランクから設定</button></div>
+                <p id="stamina_capacity_note"></p>
+                <div><input id="monpass_premium" type="checkbox" onchange="changeStaminaPremium();">
+                    <label for="monpass_premium">モンパスプレミアム（＋・王者のパワー）</label></div>
+                <div><label for="stamina_spot">モンスポットのスタミナ還元</label>
+                    <select id="stamina_spot" onchange="calcLapCount();">
+                        <option value="none">なし</option>
+                        <option value="antenna">マイアンテナ</option>
+                        <option value="circle">サークル内</option>
+                        <option value="antenna_plus">＋のマイアンテナ</option>
+                        <option value="circle_plus">＋のサークル内</option>
+                        <option value="king_main" disabled>王者のパワー：メインアンテナ</option>
+                        <option value="king_sub" disabled>王者のパワー：サブアンテナ</option>
+                    </select></div>
+                <div><label for="stamina_campaign_guests">マルチのスタミナバック期間中のゲスト人数</label>
+                    <select id="stamina_campaign_guests" onchange="calcLapCount();">
+                        <option value="0">利用しない</option><option value="1">1人</option>
+                        <option value="2">2人</option><option value="3">3人</option>
+                    </select></div>
+                <p id="stamina_per_lap"></p>
+                <p>必要スタミナ ÷ 現在ランクのスタミナ枠で、何枠分必要かを表示します（最初の1枠も含む）。
+                還元は1周ごとに端数を切り捨てて計算します。<br>
+                ランク3000以上は3000の枠を使用します。自然回復・自動回復・ランクアップや会員特典などの全回復は加算しません。</p>
+            </div>
+        </details>
         <p>
             <div id="share">
                 <label id="tweet_label">目標を</label>
@@ -176,6 +207,7 @@
         <div>
             <label id="base_exp_label"></label>
         </div>
+        <div class="lap_table_scroll">
         <table border="1" id="lap_count_table">
             <thead style="text-align: center;">
                 <tr>
@@ -185,10 +217,15 @@
                     <th>目標まで</th>
                     <th>1日分(h)</th>
                     <th>目標まで(h)</th>
+                    <th>総消費スタミナ</th>
+                    <th>還元後必要スタミナ</th>
+                    <th>現在の枠何回分</th>
+                    <th>必要枠数（切上げ）</th>
                 </tr>
             </thead>
             <tbody id="lap_count_tbody"></tbody>
         </table>
+        </div>
         <p id="lap_tips">
             <label>「1日分」・「目標まで」は周回数、<br></label>
             <label>「(h)」は目標まで何時間周回するかを表しています。</label>
