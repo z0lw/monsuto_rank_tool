@@ -336,6 +336,6 @@
 .lap_table_scroll { max-width: 100%; overflow-x: auto; }
 #lap_count_table th, #lap_count_table td { white-space: nowrap; }
 .stamina_number { text-align: right; }
-.stamina_settings { border: 1px solid #333; padding: 8px; margin-top: 4px; }
+.stamina_settings { border-top: 1px solid #ccc; padding-top: 6px; margin-top: 6px; }
 .stamina_settings p { font-size: 13px; margin: 6px 0; }
 #stamina_capacity { width: 75px; }

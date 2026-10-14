@@ -487,7 +487,7 @@ function makeLapCount() {
         rowStr += '<td id="lap_one_day_h' + i + '"></td>';
         // 目標まで(h)
         rowStr += '<td id="lap_goal_h' + i + '"></td>';
-        ['stamina_gross', 'stamina_net', 'stamina_frames', 'stamina_ceil'].forEach(function(id) {
+        ['stamina_net', 'stamina_ceil'].forEach(function(id) {
             rowStr += '<td class="stamina_number" id="' + id + i + '"></td>';
         });
         rowStr += '</tr>';
@@ -668,13 +668,14 @@ function updateStaminaCapacity(force) {
         $('#stamina_capacity').val(staminaTable[rank] || '');
         staminaRank = rank;
     }
-    $('#stamina_capacity_note').text('ランク' + rank + 'の枠を使用。' +
-        (rank > 2500 ? '2501〜3000の自動設定値は推定です。ゲーム内の最大値に変更できます。' : 'ゲーム内の最大値に変更できます。'));
+    $('#stamina_capacity_note').text('ランク' + rank + (rank > 2500 ? '（推定・実値に変更可）' : '（実値に変更可）'));
 }
 
 function changeStaminaPremium() {
     var premium = $('#monpass_premium').prop('checked');
     var previousSpot = $('#stamina_spot').val() || '';
+    $('#stamina_spot option[value="antenna"]').text('マイアンテナ：' + (premium ? 20 : 10) + '%');
+    $('#stamina_spot option[value="circle"]').text('サークル内：' + (premium ? 30 : 20) + '%');
     $('#stamina_spot option[value^="king_"]').prop('disabled', !premium);
     if (premium) $('#stamina_spot').val('king_main');
     else if (previousSpot.indexOf('king_') === 0) $('#stamina_spot').val('none');
@@ -725,10 +726,9 @@ function calcLapCount() {
         var lapGoal = Math.ceil(needExp / lapExp);
         $('#lap_goal' + i).text(addFigure(lapGoal));
         var netStamina = lapGoal * stamina.net;
-        $('#stamina_gross' + i).text(addFigure(lapGoal * stamina.gross));
         $('#stamina_net' + i).text(addFigure(netStamina));
-        $('#stamina_frames' + i).text(capacity > 0 ? addFigure((netStamina / capacity).toFixed(2)) : '—');
-        $('#stamina_ceil' + i).text(capacity > 0 ? addFigure(Math.ceil(netStamina / capacity)) : '—');
+        $('#stamina_ceil' + i).text(capacity > 0 ? addFigure(Math.ceil(netStamina / capacity)) : '—')
+            .attr('title', capacity > 0 ? (netStamina / capacity).toFixed(2) + '枠分（最初の1枠を含む）' : '');
         // 1日分
         var lapOneDay = Math.ceil(daysExp / lapExp);
         $('#lap_one_day' + i).text(addFigure(lapOneDay));
