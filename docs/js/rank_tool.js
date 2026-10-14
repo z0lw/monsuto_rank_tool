@@ -135,7 +135,6 @@ $(document).ready(function() {
                         // changeDetail は内部で makeLapCount と calcAll を実行する
 
         $('#over_rank_msg').text('現在のランク上限は3000です。ランク3000の累計経験値は35,903,744,670（推定）。3001以降の目標は、500ランクごとに必要経験値を4倍にした推定で計算します。');
-        setTweetButton();
     });
 });
 
@@ -146,8 +145,6 @@ function changeTargetRank() {
     // 算出
     $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
     calcAll();
-    // ツイートボタン生成
-    setTweetButton();
 }
 
 /**
@@ -157,8 +154,6 @@ function changeNowRank() {
     // 算出
     $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
     calcAll();
-    // ツイートボタン生成
-    setTweetButton();
 }
 
 /**
@@ -172,8 +167,6 @@ function changeTotalExp() {
     calcNowRank();
     // 算出
     calcAll();
-    // ツイートボタン生成
-    setTweetButton();
 }
 
 /**
@@ -199,8 +192,6 @@ function blurTotalExp() {
     convertNum('target_year');
     changeDay();
     calcAll();
-    // ツイートボタン生成
-    setTweetButton();
 }
 
 /**
@@ -210,8 +201,6 @@ function changeTargetMonth() {
     convertNum('target_month');
     changeDay();
     calcAll();
-    // ツイートボタン生成
-    setTweetButton();
 }
 
 /**
@@ -220,8 +209,6 @@ function changeTargetMonth() {
 function changeTargetDay() {
     convertNum('target_day');
     calcAll();
-    // ツイートボタン生成
-    setTweetButton();
 }
 
 /**
@@ -771,46 +758,4 @@ function setInitVal(id, isAddFigure = false, undefinedVal = '') {
     if (undefinedVal) {
         $('#' + id).val(undefinedVal);
     }
-}
-
-/**
- * ツイートボタン生成
- */
-function setTweetButton(){
-    $('#tweet_area').empty(); //既存のボタン消す
-    $('#share').hide();
-    var targetRank = $('#target_rank').val();
-    var nowRank = $('#now_rank').val();
-
-    if (!targetRank || !nowRank || !$('#need_exp').text()) {
-        return;
-    }
-
-    var text = '';
-    text += '【目標ランク】' + targetRank;
-    if (targetRank > maxRank) {
-        text += '(推定)';
-    }
-    text += '\n';
-    text += '【現在のランク】' + nowRank;
-    if (nowRank > maxRank) {
-        text += '(推定)';
-    }
-    text += '\n';
-    text += '【目標日】' + $('#target_year').val() + '年' + $('#target_month').val() + '月' + $('#target_day').val() + '日' + '\n';
-    text += '目標までに必要な経験値は ' + $('#need_exp').text() + '\n';
-    text += '毎日 ' + $('#days_exp').text() + ' 獲得すれば達成可能！';
-
-    // ボタン生成
-    $('#share').show();
-    twttr.widgets.createShareButton(
-      "",
-      document.getElementById("tweet_area"),
-      {
-        text: text, // 狙ったテキスト
-        url: 'https://ishikoro1994.github.io/monsuto_rank_tool/',
-        hashtags: 'モンスト,モンスト目標宣言,ノマクエ周回',
-        lang: 'ja'
-      }
-    );
 }

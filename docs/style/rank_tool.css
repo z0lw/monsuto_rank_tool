@@ -69,10 +69,6 @@
   margin-top: initial;
 }
 
-/*シェアラベル*/
-#tweet_label {
-  float: left;
-}
 
 #detail_setting_panel{
   width: 350px;
@@ -172,13 +168,7 @@
     font-size: 14px;
   }
 
-  #tweet_label {
-    font-size: 14px;
-  }
 
-  #contact {
-    font-size: 14px;
-  }
 
   .disp_columnL {
     width: 135;
@@ -242,13 +232,7 @@
     font-size: 14px;
   }
 
-  #tweet_label {
-    font-size: 14px;
-  }
 
-  #contact {
-    font-size: 14px;
-  }
 
   .disp_columnL {
     width: 135;
@@ -315,13 +299,7 @@
     font-size: 12px;
   }
 
-  #tweet_label {
-    font-size: 12px;
-  }
 
-  #contact {
-    font-size: 12px;
-  }
 
   .disp_columnL {
     width: 105;
