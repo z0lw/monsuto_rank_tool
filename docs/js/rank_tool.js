@@ -671,22 +671,10 @@ function updateStaminaCapacity(force) {
     $('#stamina_capacity_note').text('ランク' + rank + (rank > 2500 ? '（推定・実値に変更可）' : '（実値に変更可）'));
 }
 
-function changeStaminaPremium() {
-    var premium = $('#monpass_premium').prop('checked');
-    var previousSpot = $('#stamina_spot').val() || '';
-    $('#stamina_spot option[value="sub"]').text('サブアンテナ：' + (premium ? 20 : 10) + '%');
-    $('#stamina_spot option[value="main"]').text('メインアンテナ：' + (premium ? 30 : 20) + '%');
-    $('#stamina_spot option[value^="king_"]').prop('disabled', !premium);
-    if (premium) $('#stamina_spot').val('king_main');
-    else if (previousSpot.indexOf('king_') === 0) $('#stamina_spot').val('none');
-    calcLapCount();
-}
-
-function staminaCostPerLap(cost, spot, premium, guests) {
+function staminaCostPerLap(cost, spot, guests) {
     spot = spot || 'none';
     var rates = {none: 0, sub: 10, main: 20, sub_plus: 20, main_plus: 30, king_main: 30, king_sub: 20};
-    var rate = !premium && spot.indexOf('king_') === 0 ? 0 : (rates[spot] || 0);
-    if (premium && (spot === 'sub' || spot === 'main')) rate += 10;
+    var rate = rates[spot] || 0;
     var spotBack = Math.floor(cost * rate / 100);
     var multiBack = cost > 6 ? Math.floor(cost * 15 / 100) * guests : 0;
     return {gross: cost, spotRate: rate, spotBack: spotBack, multiBack: multiBack,
@@ -697,7 +685,7 @@ function calcLapCount() {
     updateStaminaCapacity(false);
     var cost = [27, 27, 27, 27, 30][Number($('#difficulty').val())];
     var stamina = staminaCostPerLap(cost, $('#stamina_spot').val(),
-        $('#monpass_premium').prop('checked'), Number($('#stamina_campaign_guests').val()));
+        Number($('#stamina_campaign_guests').val()));
     var capacity = Number($('#stamina_capacity').val());
     $('#stamina_per_lap').text('1周：消費' + cost + ' − スポット還元' + stamina.spotBack +
         '（' + stamina.spotRate + '%） − マルチ還元' + stamina.multiBack + ' ＝ 必要' + stamina.net);

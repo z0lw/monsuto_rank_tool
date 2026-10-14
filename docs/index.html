@@ -170,8 +170,6 @@
                     <input id="stamina_capacity" type="number" min="1" step="1" class="input_column" onchange="calcLapCount();">
                     <button type="button" onclick="updateStaminaCapacity(true); calcLapCount();">ランクから設定</button></div>
                 <p id="stamina_capacity_note"></p>
-                <div><input id="monpass_premium" type="checkbox" onchange="changeStaminaPremium();">
-                    <label for="monpass_premium">モンパスプレミアム</label></div>
                 <div><label for="stamina_spot">スタミナ還元</label>
                     <select id="stamina_spot" onchange="calcLapCount();">
                         <option value="none">なし</option>
@@ -179,8 +177,8 @@
                         <option value="main">メインアンテナ：20%</option>
                         <option value="sub_plus">＋のサブアンテナ：20%</option>
                         <option value="main_plus">＋のメインアンテナ：30%</option>
-                        <option value="king_main" disabled>王者：メイン 30%</option>
-                        <option value="king_sub" disabled>王者：サブ 20%</option>
+                        <option value="king_main">王者：メイン 30%</option>
+                        <option value="king_sub">王者：サブ 20%</option>
                     </select></div>
                 <div><label for="stamina_campaign_guests">マルチバック（期間中）</label>
                     <select id="stamina_campaign_guests" onchange="calcLapCount();">
