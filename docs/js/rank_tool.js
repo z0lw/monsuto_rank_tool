@@ -72,13 +72,14 @@ $(document).ready(function() {
         if (targetRankParam) {
             $('#target_rank').val(targetRankParam);
         } else {
-            $('#target_rank').val(1500); // デフォルト目標ランク
+            $('#target_rank').val(3500); // デフォルト目標ランク
         }
         // target_exp は target_rank の値に基づいて計算
         $('#target_exp').text(addFigure(calcRankToExp('#target_rank')));
 
         // 目標年月日のプルダウン生成とURLパラメータ/デフォルト値処理
         var today = new Date();
+        var defaultTargetDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
         createNumPulldownOption('target_year', today.getFullYear(), today.getFullYear() + 10);
         createNumPulldownOption('target_month', MIN_MONTH, MAX_MONTH);
         createNumPulldownOption('target_day', MIN_DAY, MAX_DAY); // 初期は1-31の選択肢
@@ -87,13 +88,13 @@ $(document).ready(function() {
         if (targetYearParam) {
             $('#target_year').val(targetYearParam);
         } else {
-            $('#target_year').val(today.getFullYear());
+            $('#target_year').val(defaultTargetDate.getFullYear());
         }
         // 月の設定
         if (targetMonthParam) {
             $('#target_month').val(targetMonthParam);
         } else {
-            $('#target_month').val(today.getMonth() + 1);
+            $('#target_month').val(defaultTargetDate.getMonth() + 1);
         }
         
         changeDay(); // 年月に基づいて日の選択肢を更新し、現在の選択値を調整
@@ -106,12 +107,7 @@ $(document).ready(function() {
             }
             // 選択肢にない場合(例: 2月30日など)は、changeDay()で調整された日付のまま
         } else {
-            // URLパラメータがない場合、changeDay()で調整された今日の日付、または月の最終日が設定される
-            // changeDay内部で $('#target_day').val(targetDay); を呼んでいるので、
-            // today.getDate() が妥当ならそれが、そうでなければ調整された日が設定される。
-            // ここでは、changeDayが設定したデフォルトのままとする。
-            // もし今日の日付を確実に設定したい場合は、再度妥当性チェックの上で $('#target_day').val(today.getDate()) とする。
-            // ただし、changeDayが既に良い感じにしているので、ここでは何もしない。
+            $('#target_day').val(1); // 2か月後の初日
         }
 
         // 現在ランク・累計経験値のURLパラメータ処理とデフォルト値設定
@@ -123,14 +119,14 @@ $(document).ready(function() {
             $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
         } else {
             // URLパラメータがない場合のデフォルト値
-            $('#now_rank').val(1); // デフォルト現在ランク
+            $('#now_rank').val(3000); // デフォルト現在ランク
             $('#total_exp').val(addFigure(calcRankToExp('#now_rank')));
         }
         
         changeDetail(); // 全ての入力値が確定した後に changeDetail() を呼び出す
                         // changeDetail は内部で makeLapCount と calcAll を実行する
 
-        $('#over_rank_msg').text('2500→2501の必要経験値は51,970,572（確定）。2501以降の累計は、500ランクごとに必要経験値を4倍にした推定です。');
+        $('#over_rank_msg').text('現在のランク上限は3000です。ランク3000の累計経験値は35,903,744,670（推定）。3001以降の目標は、500ランクごとに必要経験値を4倍にした推定で計算します。');
         setTweetButton();
     });
 });
