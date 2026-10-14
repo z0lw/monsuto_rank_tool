@@ -24,6 +24,8 @@ const MAX_MONTH = 12;
 const MIN_DAY = 1;
 const MAX_DAY = 31;
 const EXP_ABILITY_BASE_TXT = '(経験値アビ)';
+const RANK_EXP_INTERVAL = 500;
+const RANK_EXP_MULTIPLIER = 4;
 
 /**
  * ページ読み込み時
@@ -127,7 +129,7 @@ $(document).ready(function() {
         changeDetail(); // 全ての入力値が確定した後に changeDetail() を呼び出す
                         // changeDetail は内部で makeLapCount と calcAll を実行する
 
-        $('#over_rank_msg').text('ランク:' + (maxRank + 1) + '以降は経験値:' + addFigure(lastExpDiff) + '毎に加算した目安です。');
+        $('#over_rank_msg').text('2500→2501の必要経験値は51,970,572（確定）。2501以降の累計は、500ランクごとに必要経験値を4倍にした推定です。');
         setTweetButton();
     });
 });
@@ -547,14 +549,22 @@ function calcNowRank() {
     lastExp = Number(lastExp);
     if (totalExp > lastExp) {
         // 累計が最高ランクの経験値を超えている場合
-        var i = 0;
-        while (1) {
-            i++;
-            if (totalExp < (Number(lastExpDiff) * i) + lastExp) {
+        var rank = maxRank;
+        var remainingExp = totalExp - lastExp;
+        var stepExp = Number(lastExpDiff);
+        while (true) {
+            if (rank % RANK_EXP_INTERVAL === 0) {
+                stepExp *= RANK_EXP_MULTIPLIER;
+            }
+            var ranksInBlock = RANK_EXP_INTERVAL - rank % RANK_EXP_INTERVAL;
+            var blockExp = ranksInBlock * stepExp;
+            if (remainingExp < blockExp) {
+                nowRank = rank + Math.floor(remainingExp / stepExp);
                 break;
             }
+            remainingExp -= blockExp;
+            rank += ranksInBlock;
         }
-        nowRank = maxRank + i - 1;
     } else {
         var i = maxRank - 1; // 添え字のため-1
         while (i > 0) {
@@ -593,8 +603,18 @@ function calcRankToExp(rankId) {
         targetExp = rankTable[targetRank - 1][1];
     } else if (targetRank > maxRank) {
         // 目標ランクが最大ランクを超えている場合
-        // ((目標ランク - 最終ランク) * 最終ランク経験値差分) + 最終ランク経験値
-        targetExp = ((targetRank - maxRank) * Number(lastExpDiff)) + Number(lastExp);
+        targetExp = Number(lastExp);
+        var rank = maxRank;
+        var stepExp = Number(lastExpDiff);
+        while (rank < targetRank) {
+            if (rank % RANK_EXP_INTERVAL === 0) {
+                stepExp *= RANK_EXP_MULTIPLIER;
+            }
+            var ranksInBlock = Math.min(targetRank - rank,
+                RANK_EXP_INTERVAL - rank % RANK_EXP_INTERVAL);
+            targetExp += ranksInBlock * stepExp;
+            rank += ranksInBlock;
+        }
     }
 
     return targetExp;
